@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.6";
+const APP_VERSION = "0.1.7";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -210,41 +210,167 @@ function chartEvidence(chart){
   return {notes,groups,repeated};
 }
 function renderIntegrated(chart){
-  const root=$('#integratedContent');root.innerHTML='';
+  const root=$('#integratedContent');
+  root.innerHTML='';
+
+  // 合并已整理的数理特质与 81 数理 OCR 关键词；天格从头到尾不参与统计。
+  const aliases={
+    '仁慈与善良':'善良仁慈',
+    '正直与诚信':'正直诚信',
+    '勤奋与上进':'勤奋上进',
+    '聪明与才智':'聪明智慧',
+    '领导与组织':'领导能力',
+    '温和与宽厚':'温和温良',
+    '务实与踏实':'脚踏实地',
+    '直率与爽直':'心直口快',
+    '固执与倔强':'固执任性',
+    '独立与自主':'独立自主',
+    '艺术与才艺':'学识才艺',
+    '投机倾向':'好投机',
+    '孤独与孤立':'孤独倾向',
+    '自尊与好强':'自尊心强',
+    '人际与交际':'人缘好'
+  };
+  const canonical=name=>aliases[name]||name;
+  const merged=new Map();
+
+  const addSource=(label,source)=>{
+    const key=canonical(label);
+    if(!merged.has(key))merged.set(key,new Map());
+    const byGrid=merged.get(key);
+    if(!byGrid.has(source.grid)){
+      byGrid.set(source.grid,{grid:source.grid,raw:source.raw,details:[]});
+    }
+    const target=byGrid.get(source.grid);
+    if(source.detail&&!target.details.includes(source.detail))target.details.push(source.detail);
+  };
+
   const evidence=chartEvidence(chart);
-  const fromOCR=getOcrCandidates(chart);
-  const found=new Map();
   for(const row of evidence.repeated){
-    found.set(row.label,{label:row.label, sources:row.sources.map(s=>`${s.grid}${s.raw}（${[...new Set(s.items.map(i=>i.tag))].join('、')}）`)});
+    for(const s of row.sources){
+      const details=s.items.map(i=>`${i.tag}${i.detail&&i.detail!==i.tag?'（原文词：'+i.detail+'）':''}`);
+      addSource(row.label,{grid:s.grid,raw:s.raw,detail:details.join('、')});
+    }
   }
-  // OCR 仅用于补充原有特质库漏掉的同义项，注明其未校对状态。
-  for(const item of fromOCR){
-    if(found.has(item.label))continue;
-    found.set(item.label,{label:item.label,sources:item.sources.map(s=>`${s.grid}${s.raw}（${s.word}·OCR待校对）`)});
-  }
-  const matched=[];
+
+  // OCR 每格独立提取后再与人工整理标签合并，避免“人工库只命中一格、
+  // OCR 又命中另一格”时漏掉跨格重复。
   for(let i=1;i<chart.grids.length;i++){
-    const raw=chart.grids[i],n=norm(raw),grid=GRID_NAMES[i];
-    if((grid==='人格'||grid==='变格')&&n===16){
-      matched.push(`${grid}16：个性强、正直不服输、有领导能力、重承诺、人缘好。（16 数理原文：人格与变格时）`);
+    const raw=chart.grids[i],number=norm(raw),grid=GRID_NAMES[i];
+    const info=state.ocr?.numbers?.[String(number)];
+    if(!info)continue;
+    const common=info.sections.map(s=>{
+      const m=s.text.match(/(?:含义|合义)\s*[:：;]/);
+      return m?s.text.slice(m.index+m[0].length):'';
+    }).join(' ');
+    const scopedText=info.scoped.filter(s=>s.slots.includes(grid)).map(s=>s.text).join(' ');
+    const allScoped=info.scoped.map(s=>s.text).join(' ');
+    const source=(common.replaceAll(allScoped,' ')+' '+scopedText).replace(/\s+/g,' ');
+    for(const trait of OCR_TRAIT_TERMS){
+      const hit=trait.patterns.find(p=>source.includes(p));
+      if(hit)addSource(trait.label,{grid,raw,detail:`OCR关键词「${hit}」（待校对）`});
     }
-    const scoped=state.ocr?.numbers?.[String(n)]?.scoped||[];
-    for(const rule of scoped){
+  }
+
+  const repeated=[...merged.entries()]
+    .map(([label,byGrid])=>({label,sources:[...byGrid.values()],count:byGrid.size}))
+    .filter(row=>row.count>=2)
+    .sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'zh-CN'));
+
+  // 只在原文明确限定的格位出现时，才显示该数理的格位专属描述。
+  const scopedItems=[];
+  for(let i=1;i<chart.grids.length;i++){
+    const raw=chart.grids[i],number=norm(raw),grid=GRID_NAMES[i];
+
+    if(number===16&&(grid==='人格'||grid==='变格')){
+      scopedItems.push({
+        grid,raw,number,
+        summary:'个性强、正直不认输、有领导能力',
+        source:'数理16原文：“在人格与变格时，个性强，正直不认输，有领导能力。”',
+        verified:true
+      });
+    }
+
+    const rules=state.ocr?.numbers?.[String(number)]?.scoped||[];
+    for(const rule of rules){
       if(!rule.slots?.includes(grid))continue;
-      const text=String(rule.text||'').replace(/\s+/g,' ').trim();
-      if(text&&!(n===16&&(grid==='人格'||grid==='变格'))){
-        matched.push(`${grid}${raw}：${text.slice(0,145)}${text.length>145?'…':''}（OCR待校对）`);
-      }
+      if(number===16&&(grid==='人格'||grid==='变格'))continue;
+      const rawText=String(rule.text||'').replace(/\s+/g,' ').trim();
+      if(!rawText)continue;
+      // 简要解读只提取性格、能力、人际等特质片段，不把整段命理长文堆进来。
+      const clauses=rawText.split(/[，,。；;、]/).map(x=>x.trim()).filter(Boolean);
+      const traitWords=['个性','性格','正直','领导','能力','口才','上进','耐力','聪明','人缘','朋友','温和','固执','独立','善良','忠厚','脚踏实地','重承诺','不认输','不服输','刚强','好面子','协调','才艺','仁慈','宽厚','直爽','精明','圆滑'];
+      const selected=clauses.filter(c=>traitWords.some(w=>c.includes(w)));
+      if(!selected.length)continue;
+      const summary=selected.join('、');
+      if(scopedItems.some(x=>x.grid===grid&&x.number===number&&x.summary===summary))continue;
+      scopedItems.push({
+        grid,raw,number,summary,
+        source:`数理${number} OCR 第${rule.page||'?'}页（触发条件：${rule.trigger||grid}；OCR文字待校对）`,
+        verified:false
+      });
     }
   }
-  const rows=[];
-  for(const item of [...found.values()].slice(0,8)){
-    rows.push(`重复特质 · ${item.label}：${item.sources.join('；')}`);
+
+  const paragraphParts=[];
+  if(repeated.length){
+    const labels=repeated.map(x=>x.label);
+    paragraphParts.push(`本次排盘中（不含天格），多个格位反复出现的特质包括${labels.join('、')}。`);
+  }else{
+    paragraphParts.push('本次排盘中（不含天格），暂未发现至少两个不同格位重复出现的相近特质。');
   }
-  for(const item of matched.slice(0,8))rows.push(`格位专属 · ${item}`);
-  if(!rows.length)rows.push('本次未发现可明确匹配的跨格重复特质或格位专属文字。');
-  for(const line of rows){const el=document.createElement('p');el.className='mini-interpretation-line';el.textContent=line;root.append(el);}
-  const caveat=document.createElement('p');caveat.className='mini-interpretation-note';caveat.textContent='天格不参与重复统计；近义词依预设规则归并。原文 OCR 尚待逐条校对，详细内容请点格位查看原图。';root.append(caveat);
+  if(scopedItems.length){
+    const descriptions=scopedItems.map(x=>`${x.grid}${x.raw}的格位专属描述提到${x.summary}`).join('；');
+    paragraphParts.push(`此外，${descriptions}。`);
+  }
+
+  const paragraph=document.createElement('p');
+  paragraph.className='integrated-summary-paragraph';
+  paragraph.textContent=paragraphParts.join('');
+  root.append(paragraph);
+
+  const sourceHeading=document.createElement('div');
+  sourceHeading.className='integrated-source-heading';
+  sourceHeading.textContent='对应来源';
+  root.append(sourceHeading);
+
+  let sourceIndex=0;
+  const addSourceRow=(label,detail)=>{
+    sourceIndex++;
+    const row=document.createElement('div');
+    row.className='integrated-source-row';
+    const title=document.createElement('strong');
+    title.textContent=`${sourceIndex}. ${label}`;
+    const text=document.createElement('p');
+    text.textContent=detail;
+    row.append(title,text);
+    root.append(row);
+  };
+
+  if(repeated.length){
+    for(const row of repeated){
+      const details=row.sources.map(s=>{
+        const evidenceText=s.details.length?s.details.join('、'):'对应数理特质标签';
+        return `${s.grid}${s.raw}（${evidenceText}）`;
+      }).join('；');
+      addSourceRow(`重复特质「${row.label}」`, `来自：${details}。`);
+    }
+  }
+  for(const item of scopedItems){
+    addSourceRow(`${item.grid}${item.raw}格位专属描述`, `${item.summary}。来源：${item.source}`);
+  }
+
+  if(!repeated.length&&!scopedItems.length){
+    const empty=document.createElement('p');
+    empty.className='mini-interpretation-note';
+    empty.textContent='本次没有匹配到跨格重复特质或明确的格位专属描述。';
+    root.append(empty);
+  }else{
+    const note=document.createElement('p');
+    note.className='mini-interpretation-note';
+    note.textContent='天格不参与重复特质统计；同一特质在同一格只计一次。标注“OCR待校对”的来源需对照原版数理图片确认。';
+    root.append(note);
+  }
 }
 
 // OCR 未经逐条人工校对；格位匹配仅使用 OCR 中出现的明确位置词。
