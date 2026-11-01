@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.0";
+const APP_VERSION = "0.1.2";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -110,26 +110,88 @@ function calculate(){
     $("#resultSection").scrollIntoView({behavior:"smooth",block:"start"});
   }catch(e){$("#formError").textContent=e.message;}
 }
+
+function chartRows(name, chart){
+  const chars = codepoints(name);
+  return chars.map((ch, i) => ({ ch, stroke: chart.strokes[i], isSurname: i < chart.surnameLength }));
+}
+function gridButtonMarkup(label, raw, cls){
+  const n = norm(raw), g = grade(raw), el = element(raw);
+  return `<div class="visual-badge-name">${label}</div><div class="visual-badge-num">${raw}</div><div class="visual-badge-meta">${el} · ${g}</div>`;
+}
+function renderChartVisual(name, chart, triadGrade){
+  const rows = chartRows(name, chart);
+  const genderLabel = $("#gender").value === "female" ? "女" : "男";
+  const wrapper = document.createElement("div");
+  wrapper.className = "chart-visual-card";
+  wrapper.innerHTML = `
+    <div class="visual-header">
+      <div>
+        <div class="visual-name">${escapeHTML(name)}</div>
+        <div class="visual-subtitle">六格排盘</div>
+      </div>
+      <div class="visual-gender">${genderLabel}</div>
+    </div>
+    <div class="visual-body">
+      ${chart.slots[0] === 1 ? '<div class="virtual-mark top">+1</div>' : ''}
+      <div class="line line-right-top"></div>
+      <div class="line line-right-mid"></div>
+      <div class="line line-right-bottom"></div>
+      <div class="line line-left-outer"></div>
+      <div class="line line-left-inner"></div>
+      <div class="name-stack">
+        ${rows.map(r => `<div class="name-row"><span class="name-char">${escapeHTML(r.ch)}</span><span class="name-stroke">${r.stroke}</span></div>`).join("")}
+        ${chart.slots[3] === 1 ? '<div class="virtual-mark bottom">+1</div>' : ''}
+      </div>
+      <button class="visual-badge right tian" data-grid="0">${gridButtonMarkup("天格", chart.grids[0])}</button>
+      <button class="visual-badge right ren" data-grid="1">${gridButtonMarkup("人格", chart.grids[1])}</button>
+      <button class="visual-badge right di" data-grid="2">${gridButtonMarkup("地格", chart.grids[2])}</button>
+      <button class="visual-badge left wai" data-grid="4">${gridButtonMarkup("外格", chart.grids[4])}</button>
+      <button class="visual-badge left bian" data-grid="3">${gridButtonMarkup("变格", chart.grids[3])}</button>
+      <button class="visual-total" data-grid="5"><span>总格</span><strong>${chart.grids[5]}</strong></button>
+    </div>
+    <div class="visual-footer">
+      <div class="triad-summary-left">天・人・地</div>
+      <div class="triad-summary-right">${chart.triad} · ${triadGrade}</div>
+    </div>
+    <div class="visual-link-hint">点击各格数字查看六格数理 ›</div>
+  `;
+  wrapper.querySelectorAll("[data-grid]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const index = Number(btn.dataset.grid);
+      const raw = chart.grids[index];
+      const n = norm(raw);
+      openNumber(n, `${GRID_NAMES[index]} · ${raw}（数理${n}）`, grade(raw));
+    });
+  });
+  return wrapper;
+}
+
 function renderResult(name,chart){
   $("#resultName").textContent=name;
   const triadGrade=state.rules.triads.find(x=>x.elements===chart.triad)?.grade||"待补充";
   $("#triadLine").textContent=[...chart.triad].join(" · ");
   $("#triadGrade").textContent=triadGrade;
   $("#triadNote").textContent=`五行：${chart.triad.split("").join("、")}　｜　三才：${triadGrade}`;
-  const cards=$("#gridCards");cards.innerHTML="";
+  const cards=$("#gridCards");
+  cards.innerHTML="";
+  cards.append(renderChartVisual(name, chart, triadGrade));
+  const quick = document.createElement("div");
+  quick.className = "grid-quick-list";
   chart.grids.forEach((raw,i)=>{
     const n=norm(raw), g=grade(raw), el=document.createElement("button");
-    el.className="grid-card";
-    const numText=raw===n?String(raw):`${raw}<small>数理 ${n}</small>`;
-    el.innerHTML=`<div class="grid-name">${GRID_NAMES[i]}</div><div class="grid-number">${numText}</div><span class="grid-grade ${isGood(g)?"":"bad"}">${g}</span>`;
+    el.className="grid-quick-item";
+    el.innerHTML=`<div class="grid-quick-name">${GRID_NAMES[i]}</div><div class="grid-quick-num">${raw}</div><div class="grid-quick-meta">${element(raw)} · ${g}</div>`;
     el.addEventListener("click",()=>openNumber(n,`${GRID_NAMES[i]} · ${raw}（数理${n}）`,g));
-    cards.append(el);
+    quick.append(el);
   });
+  cards.append(quick);
   renderTraits(chart);
 }
 function renderTraits(chart){
   const occurrences=new Map();let covered=0;
   chart.grids.forEach((raw,i)=>{
+    if(i===0) return; // 天格不计入重复特质统计
     const n=norm(raw), list=state.traits.numbers[String(n)]||[];
     if(list.length) covered++;
     const seen=new Set();
@@ -144,7 +206,7 @@ function renderTraits(chart){
   const repeated=[...occurrences.entries()].filter(([,sources])=>sources.length>=2);
   const twice=repeated.filter(([,s])=>s.length===2).sort((a,b)=>a[0].localeCompare(b[0],"zh-CN"));
   const three=repeated.filter(([,s])=>s.length>=3).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"zh-CN"));
-  const total=chart.grids.length;
+  const total=5; // 人格、地格、变格、外格、总格
   $("#traitCoverage").textContent=`${covered}/${total} 格有标签`;
   const root=$("#traitsContent");root.innerHTML="";
   const addGroup=(title,items)=>{
@@ -160,8 +222,9 @@ function renderTraits(chart){
     });
     root.append(group);
   };
-  addGroup("出现 2 次",twice);addGroup("出现 3 次及以上",three);
-  const note=document.createElement("div");note.className="subtle-copy";note.textContent="当前特质库有标签的数理为 50 个；31 个尚未提取的数理暂不参与统计。";
+  addGroup("出现 2 次",twice);
+  addGroup("出现 3 次及以上",three);
+  const note=document.createElement("div");note.className="subtle-copy";note.textContent="当前特质统计只计算人格、地格、变格、外格、总格；天格的吉凶与命理不计入统计。当前特质库有标签的数理为 50 个；其余 31 个尚未提取的数理暂不参与统计。";
   root.append(note);
 }
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
