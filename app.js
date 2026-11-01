@@ -1,19 +1,19 @@
-const APP_VERSION = "0.1.4";
+const APP_VERSION = "0.1.5";
 const $ = (s) => document.querySelector(s);
-const state = { rules:null, traits:null, traditional:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
+const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
 const GRID_NAMES = ["天格","人格","地格","变格","外格","总格"];
 const ELEMENTS = ["木","火","土","金","水"];
 const STORAGE = { history:"tingyuan_history_v1", overrides:"tingyuan_stroke_overrides_v1" };
 
 async function loadData(){
-  const files = ["rules","interpretations","numerology-traits","strokes","surnames","name-strokes","stroke-variants","traditional-rules"];
+  const files = ["rules","interpretations","numerology-traits","strokes","surnames","name-strokes","stroke-variants","traditional-rules","numerology-ocr"];
   const values = await Promise.all(files.map(async n => {
     const r = await fetch(`./assets/${n}.json`);
     if(!r.ok) throw new Error(`数据文件加载失败：${n}.json`);
     return r.json();
   }));
-  [state.rules,state.interpretations,state.traits,state.strokes,state.surnames,state.nameOverrides,state.strokeVariants,state.traditional] = values;
+  [state.rules,state.interpretations,state.traits,state.strokes,state.surnames,state.nameOverrides,state.strokeVariants,state.traditional,state.ocr] = values;
   renderNumberGrid();
 }
 function codepoints(s){ return [...s]; }
@@ -291,7 +291,93 @@ function renderIntegrated(chart){
   const ages=data.ageStages.map(x=>`${x.start}–${x.end}岁：${x.name}`).join('；');
   addSection('六、年龄阶段',
     `资料将年龄区间划分为：${ages}。资料没有提供全部格位与各阶段的完整对应计算公式，因此不会凭空填写某一年龄段的吉凶。`,[]);
-  const notice=document.createElement('p');notice.className='integrated-caveat';notice.textContent='以上为传统姓名学文本的规则匹配与资料整理，不构成科学验证的人格、疾病、寿命、婚姻或职业预测。原始数理图片仍可逐格点击查看；有31个数理尚缺人工整理的特质标签，同义识别仅覆盖已定义的词组。';root.append(notice);
+  const notice=document.createElement('p');notice.className='integrated-caveat';notice.textContent='以上为传统姓名学文本的规则匹配与资料整理，不构成科学验证的人格、疾病、寿命、婚姻或职业预测。原始数理图片仍可逐格点击查看；31个数理仍缺人工确认的特质标签，已另行加入81数理OCR候选分析，但其内容需要对照原始图片逐条校对。';root.append(notice);
+}
+
+
+// OCR 未经逐条人工校对；格位匹配仅使用 OCR 中出现的明确位置词。
+function perGridOcr(chart){
+  const result=[];
+  for(let i=1;i<chart.grids.length;i++){
+    const raw=chart.grids[i],n=norm(raw),grid=GRID_NAMES[i];
+    for(const rule of state.ocr.numbers[String(n)]?.scoped||[]){
+      if(rule.slots.includes(grid))result.push({grid,raw,number:n,text:rule.text,trigger:rule.trigger,page:rule.page});
+    }
+  }
+  return result;
+}
+const OCR_TRAIT_TERMS=[
+  {label:'仁慈与善良',patterns:['仁慈','善良','仁爱','心肠软']},
+  {label:'正直与诚信',patterns:['正直','诚信','忠厚','信誉良好','守信用']},
+  {label:'勤奋与上进',patterns:['勤奋','上进','努力','奋斗','进取']},
+  {label:'聪明与才智',patterns:['聪明','智慧','智达','聪慧','才智','机敏']},
+  {label:'领导与组织',patterns:['首领','领导','领袖','统率']},
+  {label:'温和与宽厚',patterns:['温和','温良','宽厚','包容']},
+  {label:'务实与踏实',patterns:['踏实','务实','脚踏实地']},
+  {label:'直率与爽直',patterns:['直爽','直率','心直口快']},
+  {label:'固执与倔强',patterns:['固执','倔强','一根筋']},
+  {label:'独立与自主',patterns:['独立','自主','自立']},
+  {label:'艺术与才艺',patterns:['艺术','才艺','技艺','文艺']},
+  {label:'投机倾向',patterns:['投机','冒险']},
+  {label:'孤独与孤立',patterns:['孤独','孤立','孤寡']},
+  {label:'自尊与好强',patterns:['自尊','要面子','好强']},
+  {label:'人际与交际',patterns:['人缘','交际','交友','善于协调']}
+];
+function getOcrCandidates(chart){
+  const result=new Map();
+  chart.grids.forEach((raw,i)=>{
+    if(i===0)return; // 天格永不统计
+    const grid=GRID_NAMES[i],number=norm(raw),info=state.ocr.numbers[String(number)];
+    if(!info)return;
+    // 规则仅从含义正文起抽取，避免‘健康’‘基业’等其他分段干扰；
+    // 如果 OCR 没正确识别含义字段，则仅在明确格位句里匹配。
+    const common=info.sections.map(s=>{
+      const m=s.text.match(/(?:含义|合义)\s*[:：;]/);
+      return m?s.text.slice(m.index+m[0].length):'';
+    }).join(' ');
+    const specific=info.scoped.filter(s=>s.slots.includes(grid)).map(s=>s.text).join(' ');
+    const scopeExcluded=info.scoped.map(s=>s.text).join(' ');
+    const source=common.replaceAll(scopeExcluded,' ')+' '+specific;
+    for(const trait of OCR_TRAIT_TERMS){
+      const hit=trait.patterns.find(p=>source.includes(p));
+      if(!hit)continue;
+      if(!result.has(trait.label))result.set(trait.label,new Map());
+      result.get(trait.label).set(grid,{grid,raw,number,word:hit,kind:'OCR关键词候选'});
+    }
+  });
+  return [...result].filter(([,v])=>v.size>=2).map(([label,items])=>({label,count:items.size,sources:[...items.values()]})).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'zh-CN'));
+}
+function renderOcrDetail(chart){
+ const root=$('#ocrExpandedContent');if(!root)return;
+ root.innerHTML='';
+ const candidates=getOcrCandidates(chart);
+ const section=document.createElement('section');section.className='integrated-section';
+ const title=document.createElement('h4');title.textContent='七、81 数理 OCR 候选与格位专属解释';section.append(title);
+ const intro=document.createElement('p');intro.className='integrated-description';intro.textContent='以下为对全部81个数理OCR底稿的自动关键词初筛，包含原来31个无标签的数字。仅用于发现可能重复的近义描述，未经人工校对，不能视为确认的命理事实。人格/变格等格位专属句仅在对应格位出现时匹配；天格不纳入统计。';section.append(intro);
+ const p=document.createElement('p');p.className='integrated-description';p.textContent=`本次找到 ${candidates.length} 组跨格OCR候选（需逐条核对原图）。`;section.append(p);
+ for(const c of candidates){
+   const item=document.createElement('div');item.className='integrated-row';
+   const h=document.createElement('strong');h.textContent=`${c.label} · ${c.count}格（候选）`;
+   const t=document.createElement('p');t.textContent=c.sources.map(s=>`${s.grid}${s.raw}：关键词「${s.word}」〔数理${s.number} OCR〕`).join('；');
+   item.append(h,t);section.append(item);
+ }
+ if(!candidates.length){const p=document.createElement('p');p.className='integrated-description';p.textContent='当前姓名未形成跨格OCR关键词候选。';section.append(p);}
+ const scoped=perGridOcr(chart);
+ const sh=document.createElement('h4');sh.textContent='格位限定的原文段落';section.append(sh);
+ if(!scoped.length){const p=document.createElement('p');p.className='integrated-description';p.textContent='当前格位没有识别出明确限定句；并非没有传统解释。';section.append(p);}
+ for(const r of scoped){
+   const row=document.createElement('div');row.className='integrated-row';const h=document.createElement('strong');h.textContent=`${r.grid} ${r.raw} · OCR 第${r.page}页`;
+   const t=document.createElement('p');t.textContent=`原文触发词「${r.trigger}」：${r.text}`;
+   row.append(h,t);section.append(row);
+ }
+ const all=document.createElement('details');all.className='traditional-sources';
+ const sum=document.createElement('summary');sum.textContent='展开查看本次五格完整OCR底稿（待人工校对）';all.append(sum);
+ for(let i=1;i<chart.grids.length;i++){
+   const n=norm(chart.grids[i]);const data=state.ocr.numbers[String(n)];
+   const h=document.createElement('h4');h.textContent=`${GRID_NAMES[i]} ${chart.grids[i]}（数理${n}）`;all.append(h);
+   for(const page of data.sections){const p=document.createElement('p');p.textContent=`原始图片第${page.page}页 OCR：\n${page.text}`;all.append(p);}
+ }
+ section.append(all);root.append(section);
 }
 
 function renderResult(name,chart){
@@ -316,6 +402,7 @@ function renderResult(name,chart){
   renderTraits(chart);
   renderTraditional(chart);
   renderIntegrated(chart);
+  renderOcrDetail(chart);
 }
 function renderTraditional(chart){
   const data=state.traditional, holder=$("#traditionalContent");
@@ -388,7 +475,7 @@ function renderTraits(chart){
       const count=document.createElement('span');count.className='trait-count';count.textContent=row.count+' 格';item.append(left,count);el.append(item);
     });root.append(el);
   });
-  const note=document.createElement('p');note.className='subtle-copy';note.textContent='同义归并仅限已列出的保守近义词组，人格文档可参与语义比对；同一格相似词不重复计数。天格不计入统计，31 个缺少标签的数理暂无法完整比较。';root.append(note);
+  const note=document.createElement('p');note.className='subtle-copy';note.textContent='同义归并仅限已列出的保守近义词组，人格文档可参与语义比对；同一格相似词不重复计数。天格不计入统计，31 个缺少人工标签的数理现已另列 OCR 关键词候选，尚未经人工核验。';root.append(note);
 }
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function openNumber(number,title="",gradeText=""){
