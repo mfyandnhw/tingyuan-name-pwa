@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.7";
+const APP_VERSION = "0.1.8";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -312,16 +312,35 @@ function renderIntegrated(chart){
     }
   }
 
-  const paragraphParts=[];
-  if(repeated.length){
-    const labels=repeated.map(x=>x.label);
-    paragraphParts.push(`本次排盘中（不含天格），多个格位反复出现的特质包括${labels.join('、')}。`);
+  // 将所有命中的特质写成一段完整、连贯的文字，而不是只罗列标签。
+  const traitSentences={
+    '善良仁慈':'待人较为仁厚，体现出善良、愿意体谅他人的一面',
+    '正直诚信':'为人正直，重视诚信与原则',
+    '勤奋上进':'做事积极，有持续努力和追求进步的倾向',
+    '聪明智慧':'思维较灵活，表现出聪明、善于理解和判断的一面',
+    '领导能力':'在组织事务或带领他人方面具有一定倾向',
+    '温和温良':'性情较温和，待人宽厚',
+    '脚踏实地':'做事偏务实，重视稳定和实际结果',
+    '心直口快':'表达方式较直接，倾向于有话直说',
+    '固执任性':'主见较强，有时也可能坚持己见、不易改变',
+    '独立自主':'倾向于独立判断，并按自己的想法采取行动',
+    '学识才艺':'对知识学习、专业钻研或才艺发展有一定倾向',
+    '好投机':'在决策或做事方式上可能带有一定投机、冒险倾向',
+    '孤独倾向':'有时更倾向独处，或不容易主动融入群体',
+    '自尊心强':'自我要求和自尊意识较强，比较在意个人评价',
+    '人缘好':'在人际互动中较容易与他人建立联系'
+  };
+  const repeatedNarratives=repeated.map(row=>traitSentences[row.label]||`也呈现出「${row.label}」这一特质`);
+  const scopedNarratives=scopedItems.map(item=>`${item.grid}${item.raw}的格位专属信息提到${item.summary}`);
+
+  let narrative='';
+  if(repeatedNarratives.length){
+    narrative=`综合本次排盘中（不含天格）至少在两个不同格位出现的相近特质，可以概括为：${repeatedNarratives.join('；')}。`;
   }else{
-    paragraphParts.push('本次排盘中（不含天格），暂未发现至少两个不同格位重复出现的相近特质。');
+    narrative='本次排盘中（不含天格）暂未发现至少在两个不同格位重复出现的相近特质。';
   }
-  if(scopedItems.length){
-    const descriptions=scopedItems.map(x=>`${x.grid}${x.raw}的格位专属描述提到${x.summary}`).join('；');
-    paragraphParts.push(`此外，${descriptions}。`);
+  if(scopedNarratives.length){
+    narrative+=`此外，特定数理在对应格位时还会有额外含义：${scopedNarratives.join('；')}。`;
   }
 
   const paragraph=document.createElement('p');
@@ -331,7 +350,7 @@ function renderIntegrated(chart){
 
   const sourceHeading=document.createElement('div');
   sourceHeading.className='integrated-source-heading';
-  sourceHeading.textContent='对应来源';
+  sourceHeading.textContent='以上解读对应来源';
   root.append(sourceHeading);
 
   let sourceIndex=0;
@@ -353,11 +372,11 @@ function renderIntegrated(chart){
         const evidenceText=s.details.length?s.details.join('、'):'对应数理特质标签';
         return `${s.grid}${s.raw}（${evidenceText}）`;
       }).join('；');
-      addSourceRow(`重复特质「${row.label}」`, `来自：${details}。`);
+      addSourceRow(`「${row.label}」这项特质`, `对应上方解读中的相关描述。来源：${details}。`);
     }
   }
   for(const item of scopedItems){
-    addSourceRow(`${item.grid}${item.raw}格位专属描述`, `${item.summary}。来源：${item.source}`);
+    addSourceRow(`「${item.summary}」这句格位专属描述`, `对应上方关于${item.grid}${item.raw}的句子。来源：${item.source}`);
   }
 
   if(!repeated.length&&!scopedItems.length){
