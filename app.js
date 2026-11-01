@@ -1,19 +1,19 @@
-const APP_VERSION = "0.1.2";
+const APP_VERSION = "0.1.3";
 const $ = (s) => document.querySelector(s);
-const state = { rules:null, traits:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
+const state = { rules:null, traits:null, traditional:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
 const GRID_NAMES = ["天格","人格","地格","变格","外格","总格"];
 const ELEMENTS = ["木","火","土","金","水"];
 const STORAGE = { history:"tingyuan_history_v1", overrides:"tingyuan_stroke_overrides_v1" };
 
 async function loadData(){
-  const files = ["rules","interpretations","numerology-traits","strokes","surnames","name-strokes","stroke-variants"];
+  const files = ["rules","interpretations","numerology-traits","strokes","surnames","name-strokes","stroke-variants","traditional-rules"];
   const values = await Promise.all(files.map(async n => {
     const r = await fetch(`./assets/${n}.json`);
     if(!r.ok) throw new Error(`数据文件加载失败：${n}.json`);
     return r.json();
   }));
-  [state.rules,state.interpretations,state.traits,state.strokes,state.surnames,state.nameOverrides,state.strokeVariants] = values;
+  [state.rules,state.interpretations,state.traits,state.strokes,state.surnames,state.nameOverrides,state.strokeVariants,state.traditional] = values;
   renderNumberGrid();
 }
 function codepoints(s){ return [...s]; }
@@ -187,7 +187,62 @@ function renderResult(name,chart){
   });
   cards.append(quick);
   renderTraits(chart);
+  renderTraditional(chart);
 }
+function renderTraditional(chart){
+  const data=state.traditional, holder=$("#traditionalContent");
+  holder.innerHTML="";
+  if(!data){holder.textContent="传统规则尚未加载";return;}
+  const addSection=(heading,content,tip="")=>{
+    const section=document.createElement("section");section.className="traditional-section";
+    const h=document.createElement("div");h.className="traditional-heading";h.textContent=heading;
+    const body=document.createElement("div");body.className="traditional-body";body.textContent=content;
+    section.append(h,body);
+    if(tip){const small=document.createElement("p");small.className="traditional-tip";small.textContent=tip;section.append(small);}
+    holder.append(section);
+  };
+  // 阴阳仅用于人格：原文只描述阴阳属性，奇偶对应是可修改的通行约定。
+  const rawRen=chart.grids[1],renNum=norm(rawRen),el=element(rawRen),yy=rawRen%2===1?"阳":"阴";
+  const p=data.personality[el];
+  addSection(`人格 ${rawRen} · ${yy}${el}（${p.principle}）`, `五行描述：${p.base}\n${yy}${el}描述：${yy==="阳"?p.yang:p.yin}`,data.yinYangAssumption);
+  const names=GRID_NAMES;
+  const included=chart.grids.slice(1).map((raw,j)=>({name:names[j+1],raw,norm:norm(raw)}));
+  const special=data.special;
+  const matches=[];
+  for(const a of included){
+    if(special.imperial.includes(a.norm)) matches.push(`${a.name}${a.raw}：帝王术数理（${a.norm}）`);
+    else if(special.smallImperial.includes(a.norm)) matches.push(`${a.name}${a.raw}：小帝王术数理（29）`);
+    if(special.art.includes(a.norm))matches.push(`${a.name}${a.raw}：艺术格（20）`);
+    if(special.official.includes(a.norm))matches.push(`${a.name}${a.raw}：资料描述“容易向官方走”（19）`);
+    if(special.sickWood.includes(a.norm))matches.push(`${a.name}${a.raw}：病木数理（${a.norm}）`);
+    if(special.longevityEarth.includes(a.norm))matches.push(`${a.name}${a.raw}：福寿土数理（5）`);
+  }
+  addSection("特殊数理标记（不含天格）",matches.length?matches.join("\n"):"人格、地格、变格、外格、总格暂未命中所列特殊数字。","仅标注原文所列数字；不据此推断领导概率、寿命、婚姻或健康。");
+  const relation=data.fiveElementControl;
+  const tianEl=element(chart.grids[0]), renEl=element(chart.grids[1]);
+  const controls=(a,b)=>{const order=["木","火","土","金","水"];return (order.indexOf(a)+2)%5===order.indexOf(b);};
+  let rel="天格与人格五行："+tianEl+" / "+renEl+"。";
+  if(controls(renEl,tianEl))rel+=" 按常见五行相克规则，属于“人克天”（文档对应语句为“会顶撞上面”）。";
+  else if(controls(tianEl,renEl))rel+=" 按常见五行相克规则，属于“天克人”。";
+  else if(renEl===tianEl)rel+=" 两格五行相同。";
+  else rel+=" 未形成直接相克。";
+  addSection("五行关系",rel,`${data.relationAssumption}；天格只参与这一结构关系展示，不参与吉凶和重复特质统计。`);
+  addSection("人生阶段（资料分段）",data.ageStages.map(s=>`${s.start}—${s.end}岁：${s.name}`).join("\n"),`原文提及转换期约${data.transitionYears}年，但没有说明六格到各年龄段的完整映射，因此暂不生成各阶段吉凶结论。`);
+  const details=document.createElement("details");details.className="traditional-sources";
+  const summary=document.createElement("summary");summary.textContent="查看原始资料与尚未确定的规则";
+  details.append(summary);
+  const list=document.createElement("div");list.className="traditional-source-text";
+  for(const [name,lines] of Object.entries(data.sources)){
+    const label=document.createElement("h4");label.textContent=`《${name}》`;
+    const text=document.createElement("p");text.textContent=lines.join("\n");
+    list.append(label,text);
+  }
+  const pending=document.createElement("h4");pending.textContent="待明确条件，未自动判断";
+  const pendingText=document.createElement("p");pendingText.textContent=data.undetermined.join("、");
+  list.append(pending,pendingText);details.append(list);holder.append(details);
+  const caveat=document.createElement("p");caveat.className="traditional-caveat";caveat.textContent=data.caveat;holder.append(caveat);
+}
+
 function renderTraits(chart){
   const occurrences=new Map();let covered=0;
   chart.grids.forEach((raw,i)=>{
