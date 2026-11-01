@@ -94,3 +94,11 @@ button,input,select{font:inherit}button{cursor:pointer}.app-shell{max-width:760p
 .integrated-source-row{padding:8px 0;border-top:1px solid var(--line,#eee)}
 .integrated-source-row strong{display:block;font-size:12px;color:var(--green);font-weight:700}
 .integrated-source-row p{font-size:12px;line-height:1.75;color:var(--muted,#777);margin:4px 0 0;overflow-wrap:anywhere}
+
+/* 简要解读最多显示四行，来源列表单独展示 */
+.integrated-summary-paragraph{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;line-height:1.75;max-height:7em;margin-bottom:14px}
+.integrated-source-heading{display:block;clear:both;margin-top:16px}
+
+/* 0.1.8.3: source rows must always remain fully visible. */
+.integrated-source-row,.integrated-source-row p,.integrated-source-heading{max-height:none!important;overflow:visible!important;display:block!important;-webkit-line-clamp:unset!important;line-clamp:unset!important}
+.integrated-summary-paragraph{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;max-height:7em}
