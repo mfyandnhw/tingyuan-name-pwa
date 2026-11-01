@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f6f3ee">
+  <meta name="description" content="庭远姓名：姓名排盘、五格数理、三才五行与重复特质分析。">
+  <title>庭远姓名</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-mark">庭</div>
+      <div class="brand-copy">
+        <div class="brand-title">庭远姓名</div>
+        <div class="brand-subtitle">一名之中，见其格局</div>
+      </div>
+      <button class="icon-button" id="installBtn" hidden aria-label="安装到桌面" title="安装到桌面">＋</button>
+      <button class="icon-button" id="aboutBtn" aria-label="关于">?</button>
+    </header>
+
+    <nav class="tabs" aria-label="主导航">
+      <button class="tab active" data-tab="chart">排盘</button>
+      <button class="tab" data-tab="library">数理库</button>
+      <button class="tab" data-tab="history">记录</button>
+    </nav>
+
+    <main>
+      <section class="page active" id="page-chart">
+        <section class="panel intro-panel">
+          <div class="eyebrow">NAME ANALYSIS</div>
+          <h1>姓名排盘</h1>
+          <p>输入姓名，查看六格数理、三才五行与重复特质。</p>
+        </section>
+
+        <section class="panel form-panel">
+          <label class="field-label" for="nameInput">姓名</label>
+          <input id="nameInput" class="text-input name-input" type="text" maxlength="8" autocomplete="off" placeholder="请输入二至四字姓名">
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label" for="surnameMode">姓氏字数</label>
+              <select id="surnameMode" class="select-input">
+                <option value="auto">自动识别常见复姓</option>
+                <option value="1">单姓：第一个字</option>
+                <option value="2">复姓：前两个字</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="gender">数理规则</label>
+              <select id="gender" class="select-input">
+                <option value="male">男命规则</option>
+                <option value="female">女命规则</option>
+              </select>
+            </div>
+          </div>
+          <div id="strokeEditor" class="stroke-editor"></div>
+          <div class="hint" id="inputHint">笔画优先读取原版康熙字库；未收录的字可在上方手动补充。</div>
+          <button id="calculateBtn" class="primary-button">开始排盘</button>
+          <div id="formError" class="form-error" role="alert"></div>
+        </section>
+
+        <section id="resultSection" hidden>
+          <div class="section-heading">
+            <div>
+              <div class="eyebrow">CHART RESULT</div>
+              <h2 id="resultName">排盘结果</h2>
+            </div>
+            <button id="saveRecordBtn" class="small-button">保存记录</button>
+          </div>
+          <div class="summary-card">
+            <div class="summary-top">
+              <span class="muted-label">天格 · 人格 · 地格</span>
+              <span id="triadGrade" class="grade-pill">三才</span>
+            </div>
+            <div class="triad-line" id="triadLine"></div>
+            <div class="summary-note" id="triadNote"></div>
+          </div>
+          <div class="grid-heading">
+            <h3>五格数理</h3>
+            <span class="muted-label">点击格子查看数理全文</span>
+          </div>
+          <div class="grid-cards" id="gridCards"></div>
+          <section class="panel traits-panel" id="traitsPanel">
+            <div class="section-heading compact">
+              <div>
+                <div class="eyebrow">REPEATED TRAITS</div>
+                <h3>重复特质分析</h3>
+              </div>
+              <span class="count-pill" id="traitCoverage">分析中</span>
+            </div>
+            <p class="subtle-copy">仅统计当前已整理的数理特质；同一格内相同特质只计一次，跨格重复才计数。</p>
+            <div id="traitsContent"></div>
+          </section>
+        </section>
+      </section>
+
+      <section class="page" id="page-library">
+        <section class="panel intro-panel">
+          <div class="eyebrow">NUMEROLOGY LIBRARY</div>
+          <h1>1—81 数理库</h1>
+          <p>按数字查看原版数理全文图片及对应吉凶。</p>
+        </section>
+        <section class="panel">
+          <label class="field-label" for="numberSearch">查找数理</label>
+          <input id="numberSearch" class="text-input" inputmode="numeric" type="number" min="1" max="81" placeholder="输入 1—81">
+          <div id="numberGrid" class="number-grid"></div>
+        </section>
+      </section>
+
+      <section class="page" id="page-history">
+        <section class="panel intro-panel">
+          <div class="eyebrow">LOCAL HISTORY</div>
+          <h1>我的记录</h1>
+          <p>记录保存在当前手机浏览器中，不会自动上传。</p>
+        </section>
+        <div id="historyList"></div>
+        <button id="clearHistoryBtn" class="quiet-button">清空本机记录</button>
+      </section>
+    </main>
+
+    <footer class="footer-note">庭远姓名 · PWA 预览版 <span id="appVersion">0.1.0</span></footer>
+  </div>
+
+  <dialog id="detailDialog" class="detail-dialog">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow">NUMEROLOGY DETAIL</div>
+        <h2 id="dialogTitle">数理全文</h2>
+      </div>
+      <button class="close-button" id="closeDialog" aria-label="关闭">×</button>
+    </div>
+    <div id="dialogMeta" class="dialog-meta"></div>
+    <div id="dialogImages" class="dialog-images"></div>
+  </dialog>
+
+  <dialog id="aboutDialog" class="detail-dialog about-dialog">
+    <div class="dialog-header">
+      <div><div class="eyebrow">ABOUT</div><h2>关于庭远姓名</h2></div>
+      <button class="close-button" id="closeAbout" aria-label="关闭">×</button>
+    </div>
+    <p>本版本将原 Android APP 的核心排盘与数理资源整理为手机桌面网页应用。</p>
+    <ul>
+      <li>保留原版六格计算、81 数理吉凶、三才五行规则和数理图片。</li>
+      <li>新增重复特质统计，并显示来源格与数字。</li>
+      <li>特质统计暂时只使用已有标签的 50 个数理；其余 31 个空缺不猜测、不参与统计。</li>
+      <li>姓名、笔画修改和历史记录仅保存在当前设备浏览器本地。</li>
+    </ul>
+    <p class="subtle-copy">姓名学数理属于传统民俗分析体系，仅供文化研究与娱乐参考，不构成对个人命运的科学判断。</p>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>

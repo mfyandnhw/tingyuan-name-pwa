@@ -1,0 +1,913 @@
+{
+  "version": 1,
+  "numbers": [
+    {
+      "number": 1,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 2,
+      "male": "大凶",
+      "female": "大凶"
+    },
+    {
+      "number": 3,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 4,
+      "male": "大凶",
+      "female": "大凶"
+    },
+    {
+      "number": 5,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 6,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 7,
+      "male": "吉",
+      "female": "吉"
+    },
+    {
+      "number": 8,
+      "male": "吉",
+      "female": "吉"
+    },
+    {
+      "number": 9,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 10,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 11,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 12,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 13,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 14,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 15,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 16,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 17,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 18,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 19,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 20,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 21,
+      "male": "吉",
+      "female": "半凶"
+    },
+    {
+      "number": 22,
+      "male": "半凶",
+      "female": "半凶"
+    },
+    {
+      "number": 23,
+      "male": "吉",
+      "female": "凶"
+    },
+    {
+      "number": 24,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 25,
+      "male": "吉",
+      "female": "吉"
+    },
+    {
+      "number": 26,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 27,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 28,
+      "male": "半吉",
+      "female": "凶"
+    },
+    {
+      "number": 29,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 30,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 31,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 32,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 33,
+      "male": "吉",
+      "female": "凶"
+    },
+    {
+      "number": 34,
+      "male": "半吉",
+      "female": "凶"
+    },
+    {
+      "number": 35,
+      "male": "吉",
+      "female": "大吉"
+    },
+    {
+      "number": 36,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 37,
+      "male": "大吉",
+      "female": "吉"
+    },
+    {
+      "number": 38,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 39,
+      "male": "吉",
+      "female": "凶"
+    },
+    {
+      "number": 40,
+      "male": "半凶",
+      "female": "半凶"
+    },
+    {
+      "number": 41,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 42,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 43,
+      "male": "半凶",
+      "female": "半凶"
+    },
+    {
+      "number": 44,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 45,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 46,
+      "male": "半凶",
+      "female": "半凶"
+    },
+    {
+      "number": 47,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 48,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 49,
+      "male": "半凶",
+      "female": "半凶"
+    },
+    {
+      "number": 50,
+      "male": "吉后凶",
+      "female": "吉后凶"
+    },
+    {
+      "number": 51,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 52,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 53,
+      "male": "半凶",
+      "female": "半凶"
+    },
+    {
+      "number": 54,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 55,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 56,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 57,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 58,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 59,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 60,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 61,
+      "male": "吉",
+      "female": "吉"
+    },
+    {
+      "number": 62,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 63,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 64,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 65,
+      "male": "大吉",
+      "female": "大吉"
+    },
+    {
+      "number": 66,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 67,
+      "male": "吉",
+      "female": "吉"
+    },
+    {
+      "number": 68,
+      "male": "吉",
+      "female": "吉"
+    },
+    {
+      "number": 69,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 70,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 71,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 72,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 73,
+      "male": "半凶半吉",
+      "female": "半凶半吉"
+    },
+    {
+      "number": 74,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 75,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 76,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 77,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 78,
+      "male": "半吉",
+      "female": "半吉"
+    },
+    {
+      "number": 79,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 80,
+      "male": "凶",
+      "female": "凶"
+    },
+    {
+      "number": 81,
+      "male": "大吉",
+      "female": "大吉"
+    }
+  ],
+  "triads": [
+    {
+      "elements": "木木木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木木火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木木土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木木金",
+      "grade": "凶多吉少"
+    },
+    {
+      "elements": "木木水",
+      "grade": "吉多于凶"
+    },
+    {
+      "elements": "木火木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木火火",
+      "grade": "中吉"
+    },
+    {
+      "elements": "木火土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木火金",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "木火水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木土木",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木土火",
+      "grade": "中吉"
+    },
+    {
+      "elements": "木土土",
+      "grade": "吉"
+    },
+    {
+      "elements": "木土金",
+      "grade": "吉多于凶"
+    },
+    {
+      "elements": "木土水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木金木",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木金火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木金土",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "木金金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木金水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "木水木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木水火",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "木水土",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "木水金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "木水水",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火木木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火木火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火木土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火木金",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "火木水",
+      "grade": "中吉"
+    },
+    {
+      "elements": "火火木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火火火",
+      "grade": "中吉"
+    },
+    {
+      "elements": "火火土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火火金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火火水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火土木",
+      "grade": "吉多于凶"
+    },
+    {
+      "elements": "火土火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火土土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火土金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "火土水",
+      "grade": "吉多于凶"
+    },
+    {
+      "elements": "火金木",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火金火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火金土",
+      "grade": "吉凶参半"
+    },
+    {
+      "elements": "火金金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火金水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火水木",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "火水火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火水土",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火水金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "火水水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "土木木",
+      "grade": "中吉"
+    },
+    {
+      "elements": "土木火",
+      "grade": "中吉"
+    },
+    {
+      "elements": "土木土",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "土木金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "土木水",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "土火木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土火火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土火土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土火金",
+      "grade": "吉多于凶"
+    },
+    {
+      "elements": "土火水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "土土木",
+      "grade": "中吉"
+    },
+    {
+      "elements": "土土火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土土土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土土金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土土水",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "土金木",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "土金火",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "土金土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土金金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土金水",
+      "grade": "大吉"
+    },
+    {
+      "elements": "土水木",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "土水火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "土水土",
+      "grade": "大凶"
+    },
+    {
+      "elements": "土水金",
+      "grade": "吉凶参半"
+    },
+    {
+      "elements": "土水水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "金木木",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "金木火",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "金木土",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "金木金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "金木水",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "金火木",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "金火火",
+      "grade": "吉凶参半"
+    },
+    {
+      "elements": "金火土",
+      "grade": "吉凶参半"
+    },
+    {
+      "elements": "金火金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "金火水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "金土木",
+      "grade": "中吉"
+    },
+    {
+      "elements": "金土火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "金土土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "金土金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "金土水",
+      "grade": "吉多于凶"
+    },
+    {
+      "elements": "金金木",
+      "grade": "大凶"
+    },
+    {
+      "elements": "金金火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "金金土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "金金金",
+      "grade": "中吉"
+    },
+    {
+      "elements": "金金水",
+      "grade": "中吉"
+    },
+    {
+      "elements": "金水木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "金水火",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "金水土",
+      "grade": "吉"
+    },
+    {
+      "elements": "金水金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "金水水",
+      "grade": "中吉"
+    },
+    {
+      "elements": "水木木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水木火",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水木土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水木金",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "水木水",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水火木",
+      "grade": "中吉"
+    },
+    {
+      "elements": "水火火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水火土",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "水火金",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水火水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水土木",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水土火",
+      "grade": "中吉"
+    },
+    {
+      "elements": "水土土",
+      "grade": "中吉"
+    },
+    {
+      "elements": "水土金",
+      "grade": "中吉"
+    },
+    {
+      "elements": "水土水",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水金木",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "水金火",
+      "grade": "凶多于吉"
+    },
+    {
+      "elements": "水金土",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水金金",
+      "grade": "中吉"
+    },
+    {
+      "elements": "水金水",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水水木",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水水火",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水水土",
+      "grade": "大凶"
+    },
+    {
+      "elements": "水水金",
+      "grade": "大吉"
+    },
+    {
+      "elements": "水水水",
+      "grade": "中吉"
+    }
+  ],
+  "scope": "起名、改名，不设年龄限制"
+}

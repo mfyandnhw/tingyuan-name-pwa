@@ -1,0 +1,1601 @@
+{
+  "schemaVersion": 2,
+  "source": "姓名学（2）by庭远.pdf",
+  "source_sha256": "53e01fbf726666682e9964b2474664aedd03df8eeb3549830ea611ac640d9dc6",
+  "format": "逐条完整原文影像，保留原字、条件、男女差异及跨页续文",
+  "entries": [
+    {
+      "number": 1,
+      "segments": [
+        {
+          "page": 1,
+          "asset": "numerology/01-1.png",
+          "width": 1074,
+          "height": 340,
+          "source_box": [
+            154,
+            166,
+            1228,
+            506
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "segments": [
+        {
+          "page": 1,
+          "asset": "numerology/02-1.png",
+          "width": 1074,
+          "height": 438,
+          "source_box": [
+            154,
+            526,
+            1228,
+            964
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "segments": [
+        {
+          "page": 1,
+          "asset": "numerology/03-1.png",
+          "width": 1074,
+          "height": 406,
+          "source_box": [
+            154,
+            971,
+            1228,
+            1377
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "segments": [
+        {
+          "page": 1,
+          "asset": "numerology/04-1.png",
+          "width": 1074,
+          "height": 266,
+          "source_box": [
+            154,
+            1377,
+            1228,
+            1643
+          ]
+        },
+        {
+          "page": 2,
+          "asset": "numerology/04-2.png",
+          "width": 1071,
+          "height": 138,
+          "source_box": [
+            111,
+            99,
+            1182,
+            237
+          ]
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "segments": [
+        {
+          "page": 2,
+          "asset": "numerology/05-1.png",
+          "width": 1071,
+          "height": 432,
+          "source_box": [
+            111,
+            256,
+            1182,
+            688
+          ]
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "segments": [
+        {
+          "page": 2,
+          "asset": "numerology/06-1.png",
+          "width": 1071,
+          "height": 386,
+          "source_box": [
+            111,
+            708,
+            1182,
+            1094
+          ]
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "segments": [
+        {
+          "page": 2,
+          "asset": "numerology/07-1.png",
+          "width": 1071,
+          "height": 493,
+          "source_box": [
+            111,
+            1100,
+            1182,
+            1593
+          ]
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "segments": [
+        {
+          "page": 2,
+          "asset": "numerology/08-1.png",
+          "width": 1071,
+          "height": 52,
+          "source_box": [
+            111,
+            1611,
+            1182,
+            1663
+          ]
+        },
+        {
+          "page": 3,
+          "asset": "numerology/08-2.png",
+          "width": 1010,
+          "height": 321,
+          "source_box": [
+            186,
+            68,
+            1196,
+            389
+          ]
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "segments": [
+        {
+          "page": 3,
+          "asset": "numerology/09-1.png",
+          "width": 1010,
+          "height": 477,
+          "source_box": [
+            186,
+            407,
+            1196,
+            884
+          ]
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "segments": [
+        {
+          "page": 3,
+          "asset": "numerology/10-1.png",
+          "width": 1010,
+          "height": 659,
+          "source_box": [
+            186,
+            902,
+            1196,
+            1561
+          ]
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "segments": [
+        {
+          "page": 4,
+          "asset": "numerology/11-1.png",
+          "width": 1035,
+          "height": 342,
+          "source_box": [
+            101,
+            72,
+            1136,
+            414
+          ]
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "segments": [
+        {
+          "page": 4,
+          "asset": "numerology/12-1.png",
+          "width": 1035,
+          "height": 481,
+          "source_box": [
+            101,
+            432,
+            1136,
+            913
+          ]
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "segments": [
+        {
+          "page": 4,
+          "asset": "numerology/13-1.png",
+          "width": 1035,
+          "height": 483,
+          "source_box": [
+            101,
+            932,
+            1136,
+            1415
+          ]
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "segments": [
+        {
+          "page": 4,
+          "asset": "numerology/14-1.png",
+          "width": 1035,
+          "height": 218,
+          "source_box": [
+            101,
+            1415,
+            1136,
+            1633
+          ]
+        },
+        {
+          "page": 5,
+          "asset": "numerology/14-2.png",
+          "width": 1015,
+          "height": 229,
+          "source_box": [
+            175,
+            91,
+            1190,
+            320
+          ]
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "segments": [
+        {
+          "page": 5,
+          "asset": "numerology/15-1.png",
+          "width": 1015,
+          "height": 384,
+          "source_box": [
+            175,
+            339,
+            1190,
+            723
+          ]
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "segments": [
+        {
+          "page": 5,
+          "asset": "numerology/16-1.png",
+          "width": 1015,
+          "height": 387,
+          "source_box": [
+            175,
+            740,
+            1190,
+            1127
+          ]
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "segments": [
+        {
+          "page": 5,
+          "asset": "numerology/17-1.png",
+          "width": 1015,
+          "height": 489,
+          "source_box": [
+            175,
+            1127,
+            1190,
+            1616
+          ]
+        },
+        {
+          "page": 6,
+          "asset": "numerology/17-2.png",
+          "width": 1043,
+          "height": 44,
+          "source_box": [
+            125,
+            67,
+            1168,
+            111
+          ]
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "segments": [
+        {
+          "page": 6,
+          "asset": "numerology/18-1.png",
+          "width": 1043,
+          "height": 450,
+          "source_box": [
+            125,
+            132,
+            1168,
+            582
+          ]
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "segments": [
+        {
+          "page": 6,
+          "asset": "numerology/19-1.png",
+          "width": 1043,
+          "height": 658,
+          "source_box": [
+            125,
+            604,
+            1168,
+            1262
+          ]
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "segments": [
+        {
+          "page": 6,
+          "asset": "numerology/20-1.png",
+          "width": 1043,
+          "height": 426,
+          "source_box": [
+            125,
+            1262,
+            1168,
+            1688
+          ]
+        },
+        {
+          "page": 7,
+          "asset": "numerology/20-2.png",
+          "width": 1017,
+          "height": 135,
+          "source_box": [
+            162,
+            91,
+            1179,
+            226
+          ]
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "segments": [
+        {
+          "page": 7,
+          "asset": "numerology/21-1.png",
+          "width": 1017,
+          "height": 608,
+          "source_box": [
+            162,
+            244,
+            1179,
+            852
+          ]
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "segments": [
+        {
+          "page": 7,
+          "asset": "numerology/22-1.png",
+          "width": 1017,
+          "height": 337,
+          "source_box": [
+            162,
+            869,
+            1179,
+            1206
+          ]
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "segments": [
+        {
+          "page": 7,
+          "asset": "numerology/23-1.png",
+          "width": 1017,
+          "height": 392,
+          "source_box": [
+            162,
+            1206,
+            1179,
+            1598
+          ]
+        },
+        {
+          "page": 8,
+          "asset": "numerology/23-2.png",
+          "width": 852,
+          "height": 188,
+          "source_box": [
+            239,
+            82,
+            1091,
+            270
+          ]
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "segments": [
+        {
+          "page": 8,
+          "asset": "numerology/24-1.png",
+          "width": 852,
+          "height": 396,
+          "source_box": [
+            239,
+            292,
+            1091,
+            688
+          ]
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "segments": [
+        {
+          "page": 8,
+          "asset": "numerology/25-1.png",
+          "width": 852,
+          "height": 445,
+          "source_box": [
+            239,
+            705,
+            1091,
+            1150
+          ]
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "segments": [
+        {
+          "page": 8,
+          "asset": "numerology/26-1.png",
+          "width": 852,
+          "height": 494,
+          "source_box": [
+            239,
+            1169,
+            1091,
+            1663
+          ]
+        },
+        {
+          "page": 9,
+          "asset": "numerology/26-2.png",
+          "width": 994,
+          "height": 44,
+          "source_box": [
+            188,
+            101,
+            1182,
+            145
+          ]
+        }
+      ]
+    },
+    {
+      "number": 27,
+      "segments": [
+        {
+          "page": 9,
+          "asset": "numerology/27-1.png",
+          "width": 994,
+          "height": 476,
+          "source_box": [
+            188,
+            163,
+            1182,
+            639
+          ]
+        }
+      ]
+    },
+    {
+      "number": 28,
+      "segments": [
+        {
+          "page": 9,
+          "asset": "numerology/28-1.png",
+          "width": 994,
+          "height": 524,
+          "source_box": [
+            188,
+            655,
+            1182,
+            1179
+          ]
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "segments": [
+        {
+          "page": 9,
+          "asset": "numerology/29-1.png",
+          "width": 994,
+          "height": 430,
+          "source_box": [
+            188,
+            1191,
+            1182,
+            1621
+          ]
+        },
+        {
+          "page": 10,
+          "asset": "numerology/29-2.png",
+          "width": 1105,
+          "height": 46,
+          "source_box": [
+            89,
+            84,
+            1194,
+            130
+          ]
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "segments": [
+        {
+          "page": 10,
+          "asset": "numerology/30-1.png",
+          "width": 1105,
+          "height": 450,
+          "source_box": [
+            89,
+            149,
+            1194,
+            599
+          ]
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "segments": [
+        {
+          "page": 10,
+          "asset": "numerology/31-1.png",
+          "width": 1105,
+          "height": 405,
+          "source_box": [
+            89,
+            618,
+            1194,
+            1023
+          ]
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "segments": [
+        {
+          "page": 10,
+          "asset": "numerology/32-1.png",
+          "width": 1105,
+          "height": 372,
+          "source_box": [
+            89,
+            1023,
+            1194,
+            1395
+          ]
+        }
+      ]
+    },
+    {
+      "number": 33,
+      "segments": [
+        {
+          "page": 10,
+          "asset": "numerology/33-1.png",
+          "width": 1105,
+          "height": 271,
+          "source_box": [
+            89,
+            1395,
+            1194,
+            1666
+          ]
+        },
+        {
+          "page": 11,
+          "asset": "numerology/33-2.png",
+          "width": 1019,
+          "height": 181,
+          "source_box": [
+            165,
+            119,
+            1184,
+            300
+          ]
+        }
+      ]
+    },
+    {
+      "number": 34,
+      "segments": [
+        {
+          "page": 11,
+          "asset": "numerology/34-1.png",
+          "width": 1019,
+          "height": 519,
+          "source_box": [
+            165,
+            317,
+            1184,
+            836
+          ]
+        }
+      ]
+    },
+    {
+      "number": 35,
+      "segments": [
+        {
+          "page": 11,
+          "asset": "numerology/35-1.png",
+          "width": 1019,
+          "height": 425,
+          "source_box": [
+            165,
+            851,
+            1184,
+            1276
+          ]
+        }
+      ]
+    },
+    {
+      "number": 36,
+      "segments": [
+        {
+          "page": 11,
+          "asset": "numerology/36-1.png",
+          "width": 1019,
+          "height": 330,
+          "source_box": [
+            165,
+            1293,
+            1184,
+            1623
+          ]
+        },
+        {
+          "page": 12,
+          "asset": "numerology/36-2.png",
+          "width": 1114,
+          "height": 50,
+          "source_box": [
+            80,
+            46,
+            1194,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "segments": [
+        {
+          "page": 12,
+          "asset": "numerology/37-1.png",
+          "width": 1114,
+          "height": 427,
+          "source_box": [
+            80,
+            118,
+            1194,
+            545
+          ]
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "segments": [
+        {
+          "page": 12,
+          "asset": "numerology/38-1.png",
+          "width": 1114,
+          "height": 431,
+          "source_box": [
+            80,
+            567,
+            1194,
+            998
+          ]
+        }
+      ]
+    },
+    {
+      "number": 39,
+      "segments": [
+        {
+          "page": 12,
+          "asset": "numerology/39-1.png",
+          "width": 1114,
+          "height": 497,
+          "source_box": [
+            80,
+            1005,
+            1194,
+            1502
+          ]
+        }
+      ]
+    },
+    {
+      "number": 40,
+      "segments": [
+        {
+          "page": 12,
+          "asset": "numerology/40-1.png",
+          "width": 1114,
+          "height": 232,
+          "source_box": [
+            80,
+            1512,
+            1194,
+            1744
+          ]
+        },
+        {
+          "page": 13,
+          "asset": "numerology/40-2.png",
+          "width": 1108,
+          "height": 190,
+          "source_box": [
+            100,
+            88,
+            1208,
+            278
+          ]
+        }
+      ]
+    },
+    {
+      "number": 41,
+      "segments": [
+        {
+          "page": 13,
+          "asset": "numerology/41-1.png",
+          "width": 1108,
+          "height": 301,
+          "source_box": [
+            100,
+            298,
+            1208,
+            599
+          ]
+        }
+      ]
+    },
+    {
+      "number": 42,
+      "segments": [
+        {
+          "page": 13,
+          "asset": "numerology/42-1.png",
+          "width": 1108,
+          "height": 399,
+          "source_box": [
+            100,
+            618,
+            1208,
+            1017
+          ]
+        }
+      ]
+    },
+    {
+      "number": 43,
+      "segments": [
+        {
+          "page": 13,
+          "asset": "numerology/43-1.png",
+          "width": 1108,
+          "height": 465,
+          "source_box": [
+            100,
+            1017,
+            1208,
+            1482
+          ]
+        }
+      ]
+    },
+    {
+      "number": 44,
+      "segments": [
+        {
+          "page": 13,
+          "asset": "numerology/44-1.png",
+          "width": 1108,
+          "height": 171,
+          "source_box": [
+            100,
+            1482,
+            1208,
+            1653
+          ]
+        },
+        {
+          "page": 14,
+          "asset": "numerology/44-2.png",
+          "width": 981,
+          "height": 272,
+          "source_box": [
+            168,
+            114,
+            1149,
+            386
+          ]
+        }
+      ]
+    },
+    {
+      "number": 45,
+      "segments": [
+        {
+          "page": 14,
+          "asset": "numerology/45-1.png",
+          "width": 981,
+          "height": 377,
+          "source_box": [
+            168,
+            403,
+            1149,
+            780
+          ]
+        }
+      ]
+    },
+    {
+      "number": 46,
+      "segments": [
+        {
+          "page": 14,
+          "asset": "numerology/46-1.png",
+          "width": 981,
+          "height": 378,
+          "source_box": [
+            168,
+            798,
+            1149,
+            1176
+          ]
+        }
+      ]
+    },
+    {
+      "number": 47,
+      "segments": [
+        {
+          "page": 14,
+          "asset": "numerology/47-1.png",
+          "width": 981,
+          "height": 288,
+          "source_box": [
+            168,
+            1193,
+            1149,
+            1481
+          ]
+        }
+      ]
+    },
+    {
+      "number": 48,
+      "segments": [
+        {
+          "page": 14,
+          "asset": "numerology/48-1.png",
+          "width": 981,
+          "height": 104,
+          "source_box": [
+            168,
+            1498,
+            1149,
+            1602
+          ]
+        },
+        {
+          "page": 15,
+          "asset": "numerology/48-2.png",
+          "width": 1047,
+          "height": 184,
+          "source_box": [
+            150,
+            94,
+            1197,
+            278
+          ]
+        }
+      ]
+    },
+    {
+      "number": 49,
+      "segments": [
+        {
+          "page": 15,
+          "asset": "numerology/49-1.png",
+          "width": 1047,
+          "height": 383,
+          "source_box": [
+            150,
+            297,
+            1197,
+            680
+          ]
+        }
+      ]
+    },
+    {
+      "number": 50,
+      "segments": [
+        {
+          "page": 15,
+          "asset": "numerology/50-1.png",
+          "width": 1047,
+          "height": 383,
+          "source_box": [
+            150,
+            699,
+            1197,
+            1082
+          ]
+        }
+      ]
+    },
+    {
+      "number": 51,
+      "segments": [
+        {
+          "page": 15,
+          "asset": "numerology/51-1.png",
+          "width": 1047,
+          "height": 394,
+          "source_box": [
+            150,
+            1088,
+            1197,
+            1482
+          ]
+        }
+      ]
+    },
+    {
+      "number": 52,
+      "segments": [
+        {
+          "page": 15,
+          "asset": "numerology/52-1.png",
+          "width": 1047,
+          "height": 103,
+          "source_box": [
+            150,
+            1500,
+            1197,
+            1603
+          ]
+        },
+        {
+          "page": 16,
+          "asset": "numerology/52-2.png",
+          "width": 916,
+          "height": 227,
+          "source_box": [
+            202,
+            96,
+            1118,
+            323
+          ]
+        }
+      ]
+    },
+    {
+      "number": 53,
+      "segments": [
+        {
+          "page": 16,
+          "asset": "numerology/53-1.png",
+          "width": 916,
+          "height": 378,
+          "source_box": [
+            202,
+            340,
+            1118,
+            718
+          ]
+        }
+      ]
+    },
+    {
+      "number": 54,
+      "segments": [
+        {
+          "page": 16,
+          "asset": "numerology/54-1.png",
+          "width": 916,
+          "height": 290,
+          "source_box": [
+            202,
+            735,
+            1118,
+            1025
+          ]
+        }
+      ]
+    },
+    {
+      "number": 55,
+      "segments": [
+        {
+          "page": 16,
+          "asset": "numerology/55-1.png",
+          "width": 916,
+          "height": 429,
+          "source_box": [
+            202,
+            1041,
+            1118,
+            1470
+          ]
+        }
+      ]
+    },
+    {
+      "number": 56,
+      "segments": [
+        {
+          "page": 16,
+          "asset": "numerology/56-1.png",
+          "width": 916,
+          "height": 104,
+          "source_box": [
+            202,
+            1490,
+            1118,
+            1594
+          ]
+        },
+        {
+          "page": 17,
+          "asset": "numerology/56-2.png",
+          "width": 1049,
+          "height": 183,
+          "source_box": [
+            145,
+            95,
+            1194,
+            278
+          ]
+        }
+      ]
+    },
+    {
+      "number": 57,
+      "segments": [
+        {
+          "page": 17,
+          "asset": "numerology/57-1.png",
+          "width": 1049,
+          "height": 334,
+          "source_box": [
+            145,
+            295,
+            1194,
+            629
+          ]
+        }
+      ]
+    },
+    {
+      "number": 58,
+      "segments": [
+        {
+          "page": 17,
+          "asset": "numerology/58-1.png",
+          "width": 1049,
+          "height": 335,
+          "source_box": [
+            145,
+            645,
+            1194,
+            980
+          ]
+        }
+      ]
+    },
+    {
+      "number": 59,
+      "segments": [
+        {
+          "page": 17,
+          "asset": "numerology/59-1.png",
+          "width": 1049,
+          "height": 300,
+          "source_box": [
+            145,
+            980,
+            1194,
+            1280
+          ]
+        }
+      ]
+    },
+    {
+      "number": 60,
+      "segments": [
+        {
+          "page": 17,
+          "asset": "numerology/60-1.png",
+          "width": 1049,
+          "height": 301,
+          "source_box": [
+            145,
+            1280,
+            1194,
+            1581
+          ]
+        },
+        {
+          "page": 18,
+          "asset": "numerology/60-2.png",
+          "width": 985,
+          "height": 44,
+          "source_box": [
+            163,
+            93,
+            1148,
+            137
+          ]
+        }
+      ]
+    },
+    {
+      "number": 61,
+      "segments": [
+        {
+          "page": 18,
+          "asset": "numerology/61-1.png",
+          "width": 985,
+          "height": 333,
+          "source_box": [
+            163,
+            152,
+            1148,
+            485
+          ]
+        }
+      ]
+    },
+    {
+      "number": 62,
+      "segments": [
+        {
+          "page": 18,
+          "asset": "numerology/62-1.png",
+          "width": 985,
+          "height": 284,
+          "source_box": [
+            163,
+            502,
+            1148,
+            786
+          ]
+        }
+      ]
+    },
+    {
+      "number": 63,
+      "segments": [
+        {
+          "page": 18,
+          "asset": "numerology/63-1.png",
+          "width": 985,
+          "height": 279,
+          "source_box": [
+            163,
+            802,
+            1148,
+            1081
+          ]
+        }
+      ]
+    },
+    {
+      "number": 64,
+      "segments": [
+        {
+          "page": 18,
+          "asset": "numerology/64-1.png",
+          "width": 985,
+          "height": 312,
+          "source_box": [
+            163,
+            1081,
+            1148,
+            1393
+          ]
+        }
+      ]
+    },
+    {
+      "number": 65,
+      "segments": [
+        {
+          "page": 18,
+          "asset": "numerology/65-1.png",
+          "width": 985,
+          "height": 212,
+          "source_box": [
+            163,
+            1393,
+            1148,
+            1605
+          ]
+        },
+        {
+          "page": 19,
+          "asset": "numerology/65-2.png",
+          "width": 1061,
+          "height": 90,
+          "source_box": [
+            148,
+            91,
+            1209,
+            181
+          ]
+        }
+      ]
+    },
+    {
+      "number": 66,
+      "segments": [
+        {
+          "page": 19,
+          "asset": "numerology/66-1.png",
+          "width": 1061,
+          "height": 293,
+          "source_box": [
+            148,
+            199,
+            1209,
+            492
+          ]
+        }
+      ]
+    },
+    {
+      "number": 67,
+      "segments": [
+        {
+          "page": 19,
+          "asset": "numerology/67-1.png",
+          "width": 1061,
+          "height": 389,
+          "source_box": [
+            148,
+            510,
+            1209,
+            899
+          ]
+        }
+      ]
+    },
+    {
+      "number": 68,
+      "segments": [
+        {
+          "page": 19,
+          "asset": "numerology/68-1.png",
+          "width": 1061,
+          "height": 295,
+          "source_box": [
+            148,
+            917,
+            1209,
+            1212
+          ]
+        }
+      ]
+    },
+    {
+      "number": 69,
+      "segments": [
+        {
+          "page": 19,
+          "asset": "numerology/69-1.png",
+          "width": 1061,
+          "height": 309,
+          "source_box": [
+            148,
+            1212,
+            1209,
+            1521
+          ]
+        }
+      ]
+    },
+    {
+      "number": 70,
+      "segments": [
+        {
+          "page": 19,
+          "asset": "numerology/70-1.png",
+          "width": 1061,
+          "height": 107,
+          "source_box": [
+            148,
+            1538,
+            1209,
+            1645
+          ]
+        },
+        {
+          "page": 20,
+          "asset": "numerology/70-2.png",
+          "width": 862,
+          "height": 180,
+          "source_box": [
+            191,
+            86,
+            1053,
+            266
+          ]
+        }
+      ]
+    },
+    {
+      "number": 71,
+      "segments": [
+        {
+          "page": 20,
+          "asset": "numerology/71-1.png",
+          "width": 862,
+          "height": 331,
+          "source_box": [
+            191,
+            284,
+            1053,
+            615
+          ]
+        }
+      ]
+    },
+    {
+      "number": 72,
+      "segments": [
+        {
+          "page": 20,
+          "asset": "numerology/72-1.png",
+          "width": 862,
+          "height": 331,
+          "source_box": [
+            191,
+            633,
+            1053,
+            964
+          ]
+        }
+      ]
+    },
+    {
+      "number": 73,
+      "segments": [
+        {
+          "page": 20,
+          "asset": "numerology/73-1.png",
+          "width": 862,
+          "height": 288,
+          "source_box": [
+            191,
+            980,
+            1053,
+            1268
+          ]
+        }
+      ]
+    },
+    {
+      "number": 74,
+      "segments": [
+        {
+          "page": 20,
+          "asset": "numerology/74-1.png",
+          "width": 862,
+          "height": 286,
+          "source_box": [
+            191,
+            1285,
+            1053,
+            1571
+          ]
+        }
+      ]
+    },
+    {
+      "number": 75,
+      "segments": [
+        {
+          "page": 21,
+          "asset": "numerology/75-1.png",
+          "width": 1071,
+          "height": 302,
+          "source_box": [
+            130,
+            97,
+            1201,
+            399
+          ]
+        }
+      ]
+    },
+    {
+      "number": 76,
+      "segments": [
+        {
+          "page": 21,
+          "asset": "numerology/76-1.png",
+          "width": 1071,
+          "height": 306,
+          "source_box": [
+            130,
+            419,
+            1201,
+            725
+          ]
+        }
+      ]
+    },
+    {
+      "number": 77,
+      "segments": [
+        {
+          "page": 21,
+          "asset": "numerology/77-1.png",
+          "width": 1071,
+          "height": 307,
+          "source_box": [
+            130,
+            741,
+            1201,
+            1048
+          ]
+        }
+      ]
+    },
+    {
+      "number": 78,
+      "segments": [
+        {
+          "page": 21,
+          "asset": "numerology/78-1.png",
+          "width": 1071,
+          "height": 322,
+          "source_box": [
+            130,
+            1048,
+            1201,
+            1370
+          ]
+        }
+      ]
+    },
+    {
+      "number": 79,
+      "segments": [
+        {
+          "page": 21,
+          "asset": "numerology/79-1.png",
+          "width": 1071,
+          "height": 319,
+          "source_box": [
+            130,
+            1370,
+            1201,
+            1689
+          ]
+        }
+      ]
+    },
+    {
+      "number": 80,
+      "segments": [
+        {
+          "page": 22,
+          "asset": "numerology/80-1.png",
+          "width": 936,
+          "height": 288,
+          "source_box": [
+            176,
+            107,
+            1112,
+            395
+          ]
+        }
+      ]
+    },
+    {
+      "number": 81,
+      "segments": [
+        {
+          "page": 22,
+          "asset": "numerology/81-1.png",
+          "width": 936,
+          "height": 420,
+          "source_box": [
+            176,
+            411,
+            1112,
+            831
+          ]
+        }
+      ]
+    }
+  ]
+}

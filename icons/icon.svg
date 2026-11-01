@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="112" fill="#315d4b"/>
+<rect x="42" y="42" width="428" height="428" rx="88" fill="none" stroke="#d8c69d" stroke-width="8"/>
+<text x="256" y="325" text-anchor="middle" font-size="230" font-family="serif" fill="#f8f3e7">庭</text>
+<circle cx="400" cy="112" r="16" fill="#c5a46b"/>
+</svg>
