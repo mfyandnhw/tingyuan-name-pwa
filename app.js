@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.8.3";
+const APP_VERSION = "0.1.8.4";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -330,29 +330,39 @@ function renderIntegrated(chart){
     '自尊心强':'自我要求和自尊意识较强，比较在意个人评价',
     '人缘好':'在人际互动中较容易与他人建立联系'
   };
-  // 手机上只用最重要的特质生成一小段解读，详细出处留在下面。
-  const shownRepeated=repeated.slice(0,2);
-  const shownScoped=scopedItems.slice(0,1);
+  // 摘要只呈现特质含义：不写「人格16」「数理」「来源」等证据说明。
+  // 详细规则及其全部来源仍在下方独立列出。
   const shortTraits={
-    '善良仁慈':'待人仁厚','正直诚信':'重视诚信与原则',
-    '勤奋上进':'做事积极上进','聪明智慧':'思路灵活',
-    '领导能力':'有组织领导倾向','温和温良':'性情温和',
+    '善良仁慈':'待人仁厚','正直诚信':'正直守信',
+    '勤奋上进':'积极上进','聪明智慧':'思路灵活',
+    '领导能力':'有领导倾向','温和温良':'性情温和',
     '脚踏实地':'做事务实','心直口快':'表达坦率',
-    '固执任性':'有时坚持己见','独立自主':'做事有主见',
-    '学识才艺':'具有才艺倾向','好投机':'可能偏好冒险',
+    '固执任性':'有时坚持己见','独立自主':'独立自主',
+    '学识才艺':'富有才艺','好投机':'略有冒险倾向',
     '孤独倾向':'有时偏好独处','自尊心强':'自尊心较强',
-    '人缘好':'善于人际交往'
+    '人缘好':'善于交际'
   };
-  let narrative=shownRepeated.length
-    ?`数理重复特质显示：${shownRepeated.map(x=>shortTraits[x.label]||x.label).join('，')}。`
-    :'未发现符合条件的跨格重复特质。';
-  if(shownScoped.length){
-    const x=shownScoped[0];
-    const clean=x.summary.split(/[，,、；;]/).map(t=>t.trim()).filter(Boolean).slice(0,3).join('、');
-    narrative+=`${x.grid}${x.raw}还提到${clean}。`;
+  const phrases=[];
+  for(const item of repeated){
+    const phrase=shortTraits[item.label]||item.label;
+    if(phrase&&!phrases.includes(phrase))phrases.push(phrase);
   }
-  // 限制叙述文本长度，防止在窄屏上超过四行；来源不受此限制。
-  if(Array.from(narrative).length>66)narrative=Array.from(narrative).slice(0,65).join('').replace(/[，、；]$/,'')+'。';
+  for(const item of scopedItems){
+    for(const text of item.summary.split(/[，,、；;。]/).map(s=>s.trim()).filter(Boolean)){
+      // 去掉原文中偶尔带入的格位/数理前缀，仅保留性格和能力描述。
+      const phrase=text.replace(/^(?:天格|人格|地格|变格|外格|总格)\s*\d+\s*(?:时|有|为)?[:：]?/,'').trim();
+      if(phrase&&!phrases.includes(phrase))phrases.push(phrase);
+    }
+  }
+  // 先限字数再用 CSS 真实限定 4 行；尽可能避免窄屏出现截断半句话。
+  const maxChars=46;
+  let narrative='';
+  for(const phrase of phrases){
+    const candidate=narrative?`${narrative}，${phrase}`:phrase;
+    if(Array.from(candidate).length+1>maxChars)break;
+    narrative=candidate;
+  }
+  narrative=narrative?`此人${narrative}。`:'当前没有匹配到可概括的重复特质或格位专属描述。';
 
   const paragraph=document.createElement('p');
   paragraph.className='integrated-summary-paragraph';
