@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.8.4";
+const APP_VERSION = "0.1.8.6";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -231,7 +231,7 @@ function renderIntegrated(chart){
     '自尊与好强':'自尊心强',
     '人际与交际':'人缘好'
   };
-  const canonical=name=>aliases[name]||name;
+  const canonical=name=>aliases[name]||groupOfTrait(name)||name;
   const merged=new Map();
 
   const addSource=(label,source)=>{
@@ -266,9 +266,27 @@ function renderIntegrated(chart){
     const scopedText=info.scoped.filter(s=>s.slots.includes(grid)).map(s=>s.text).join(' ');
     const allScoped=info.scoped.map(s=>s.text).join(' ');
     const source=(common.replaceAll(allScoped,' ')+' '+scopedText).replace(/\s+/g,' ');
+    // 将现有特质库中的全部名称与原文证据词加入 OCR 匹配，
+    // 不再只依赖少数固定关键词，尽量覆盖所有可识别的重复特质。
+    const dynamicTraitTerms=new Map();
+    for(const items of Object.values(state.traits?.numbers||{})){
+      for(const item of items||[]){
+        if(!item?.name)continue;
+        if(!dynamicTraitTerms.has(item.name))dynamicTraitTerms.set(item.name,new Set());
+        const patterns=dynamicTraitTerms.get(item.name);
+        patterns.add(item.name);
+        for(const evidence of item.evidence||[]){
+          if(evidence&&String(evidence).trim().length>=2)patterns.add(String(evidence).trim());
+        }
+      }
+    }
     for(const trait of OCR_TRAIT_TERMS){
-      const hit=trait.patterns.find(p=>source.includes(p));
-      if(hit)addSource(trait.label,{grid,raw,detail:`OCR关键词「${hit}」（待校对）`});
+      if(!dynamicTraitTerms.has(trait.label))dynamicTraitTerms.set(trait.label,new Set());
+      for(const pattern of trait.patterns)dynamicTraitTerms.get(trait.label).add(pattern);
+    }
+    for(const [label,patternSet] of dynamicTraitTerms){
+      const hits=[...patternSet].filter(p=>p&&source.includes(p));
+      if(hits.length)addSource(label,{grid,raw,detail:`OCR关键词「${hits.join('、')}」（待校对）`});
     }
   }
 
@@ -282,87 +300,109 @@ function renderIntegrated(chart){
   for(let i=1;i<chart.grids.length;i++){
     const raw=chart.grids[i],number=norm(raw),grid=GRID_NAMES[i];
 
+    // 16 数理的原始 OCR 将格位限定句识别在正文中，未进入 scoped 数组，
+    // 因此在原文明确写出“在人格与变格时”的位置补入完整句子。
     if(number===16&&(grid==='人格'||grid==='变格')){
+      const full16='个性强，正直不认输，有领导能力。重承诺，铁肯，吃亏有朋友，有名有利，发展步步高升。人缘特佳，易得人助。';
       scopedItems.push({
-        grid,raw,number,
-        summary:'个性强、正直不认输、有领导能力',
-        source:'数理16原文：“在人格与变格时，个性强，正直不认输，有领导能力。”',
-        verified:true
+        grid,raw,number,trigger:'在人格与变格时',
+        summary:full16,
+        source:'数理16原文 OCR（第1页；格位限定句待对照原图校对）',
+        verified:false
       });
     }
 
     const rules=state.ocr?.numbers?.[String(number)]?.scoped||[];
     for(const rule of rules){
       if(!rule.slots?.includes(grid))continue;
-      if(number===16&&(grid==='人格'||grid==='变格'))continue;
       const rawText=String(rule.text||'').replace(/\s+/g,' ').trim();
       if(!rawText)continue;
-      // 简要解读只提取性格、能力、人际等特质片段，不把整段命理长文堆进来。
-      const clauses=rawText.split(/[，,。；;、]/).map(x=>x.trim()).filter(Boolean);
-      const traitWords=['个性','性格','正直','领导','能力','口才','上进','耐力','聪明','人缘','朋友','温和','固执','独立','善良','忠厚','脚踏实地','重承诺','不认输','不服输','刚强','好面子','协调','才艺','仁慈','宽厚','直爽','精明','圆滑'];
-      const selected=clauses.filter(c=>traitWords.some(w=>c.includes(w)));
-      if(!selected.length)continue;
-      const summary=selected.join('、');
-      if(scopedItems.some(x=>x.grid===grid&&x.number===number&&x.summary===summary))continue;
+      // 按用户要求完整保留该数理在对应格位时的整段专属描述，
+      // 不再只筛选性格关键词，也不省略原文中的其他信息。
+      if(scopedItems.some(x=>x.grid===grid&&x.number===number&&x.summary===rawText))continue;
       scopedItems.push({
-        grid,raw,number,summary,
+        grid,raw,number,
+        trigger:String(rule.trigger||grid).trim(),
+        summary:rawText,
         source:`数理${number} OCR 第${rule.page||'?'}页（触发条件：${rule.trigger||grid}；OCR文字待校对）`,
         verified:false
       });
     }
   }
 
-  // 将所有命中的特质写成一段完整、连贯的文字，而不是只罗列标签。
+  // 完整摘要：列出所有在两个或以上不同格位重复出现的特质，
+  // 并完整加入每一条适用的格位专属原文。摘要不写来源编号；来源在下方完整列出。
   const traitSentences={
-    '善良仁慈':'待人较为仁厚，体现出善良、愿意体谅他人的一面',
+    '仁慈与宽厚':'待人仁厚，心地善良，性情温和宽厚，较愿意体谅和包容他人',
+    '正直与诚信':'为人正直，重视诚信与原则，待人忠厚，讲求信用',
+    '勤奋与上进':'做事勤勉努力，积极进取，有事业心，愿意为目标持续奋斗',
+    '果断与意志':'做事较果断，意志坚定，个性刚强，遇到困难时有坚持到底的倾向',
+    '独立与自主':'具有独立性，倾向自主判断和行动，不完全依赖他人',
+    '聪慧与才智':'思维较灵活，聪明机敏，足智多谋，具有理解、判断和处理事情的能力',
+    '务实与踏实':'做事偏务实，忠厚老实，重视实际，倾向脚踏实地地完成事情',
+    '直率表达':'性情直率，表达直接，有话较容易直说，有时也可能因表达直接而得罪人',
+    '固执与坚持己见':'主见较强，个性固执，有时坚持己见，不容易接受不同意见',
+    '协调与交际':'善于协调和沟通，人际互动较好，较容易与他人建立联系',
+    '领导与组织':'具有一定的领导、组织和统率倾向，容易在团队中承担带领或协调角色',
+    '艺术与才艺':'对学识、艺术、文艺或专业技艺方面有一定兴趣或表现倾向',
+    '事业心强':'做事具有事业心，重视事业发展和目标达成',
+    '人缘好':'人际关系较好，较容易获得他人好感或帮助',
+    '勤奋上进':'做事勤勉努力，积极上进，愿意持续付出',
+    '口才好':'表达能力较好，较善于言谈和沟通',
+    '口才欠佳':'表达能力相对不足，不太善于言辞表达',
+    '善于协调':'善于沟通协调，能够处理人际互动中的事务',
+    '善良仁慈':'心地善良，待人仁慈，较愿意体谅他人',
+    '固执任性':'个性较固执，有时任性，坚持自己的想法',
+    '好投机':'有时带有投机或冒险倾向，做决定时需要注意风险',
+    '孤独倾向':'有时容易感到孤独，或较倾向独处',
+    '学识才艺':'在学识、艺术或技艺方面具有一定兴趣和发展倾向',
+    '容易得罪人':'说话或处事有时较直接，可能在无意中得罪他人',
+    '心直口快':'性情直率，说话直接，想到什么较容易表达出来',
+    '忠厚老实':'为人忠厚老实，处事较踏实，重视信用',
+    '性急':'性情较急，做事有时容易急于求成',
+    '意志坚定':'个性刚强，意志坚定，具有一定耐力',
+    '果断决断':'做事较果断，遇事倾向于迅速判断和作出决定',
     '正直诚信':'为人正直，重视诚信与原则',
-    '勤奋上进':'做事积极，有持续努力和追求进步的倾向',
-    '聪明智慧':'思维较灵活，表现出聪明、善于理解和判断的一面',
-    '领导能力':'在组织事务或带领他人方面具有一定倾向',
-    '温和温良':'性情较温和，待人宽厚',
-    '脚踏实地':'做事偏务实，重视稳定和实际结果',
-    '心直口快':'表达方式较直接，倾向于有话直说',
-    '固执任性':'主见较强，有时也可能坚持己见、不易改变',
-    '独立自主':'倾向于独立判断，并按自己的想法采取行动',
-    '学识才艺':'对知识学习、专业钻研或才艺发展有一定倾向',
-    '好投机':'在决策或做事方式上可能带有一定投机、冒险倾向',
-    '孤独倾向':'有时更倾向独处，或不容易主动融入群体',
-    '自尊心强':'自我要求和自尊意识较强，比较在意个人评价',
-    '人缘好':'在人际互动中较容易与他人建立联系'
+    '浪费':'在金钱或资源使用方面可能存在浪费倾向，需要留意节制',
+    '温和温良':'性情温和温良，待人和顺，较为宽厚',
+    '独立自主':'具有独立性，倾向自主处理事情',
+    '精力充沛':'精力较充沛，行动和做事的活力较强',
+    '耐力强':'具有一定耐力，做事能够持续坚持',
+    '聪明智慧':'思维灵活，聪明机敏，具有智慧和判断能力',
+    '能力出众':'具有一定才干和能力，处理事情时较能发挥所长',
+    '脚踏实地':'做事务实，重视实际，倾向脚踏实地',
+    '自制力':'具有一定自我约束和控制能力',
+    '自尊心强':'自尊心较强，重视个人评价，也比较在意面子',
+    '自我中心':'有时较以自我为中心，处理事情时容易优先考虑自身立场',
+    '自私':'有时较重视个人利益，需要留意兼顾他人感受',
+    '贵人助力':'较容易获得朋友、他人或贵人提携和帮助',
+    '重承诺':'重视承诺，讲求信用，答应他人的事情倾向认真对待',
+    '雅量宽厚':'气量较宽厚，待人有包容心，能够容纳不同意见',
+    '领导能力':'具有领导、组织或带领他人的倾向'
   };
-  // 摘要只呈现特质含义：不写「人格16」「数理」「来源」等证据说明。
-  // 详细规则及其全部来源仍在下方独立列出。
-  const shortTraits={
-    '善良仁慈':'待人仁厚','正直诚信':'正直守信',
-    '勤奋上进':'积极上进','聪明智慧':'思路灵活',
-    '领导能力':'有领导倾向','温和温良':'性情温和',
-    '脚踏实地':'做事务实','心直口快':'表达坦率',
-    '固执任性':'有时坚持己见','独立自主':'独立自主',
-    '学识才艺':'富有才艺','好投机':'略有冒险倾向',
-    '孤独倾向':'有时偏好独处','自尊心强':'自尊心较强',
-    '人缘好':'善于交际'
-  };
-  const phrases=[];
-  for(const item of repeated){
-    const phrase=shortTraits[item.label]||item.label;
-    if(phrase&&!phrases.includes(phrase))phrases.push(phrase);
+
+  const repeatedNarratives=repeated.map(item=>{
+    const meaning=traitSentences[item.label]||`呈现出${item.label}的特点`;
+    return meaning;
+  });
+
+  // 每条实际触发的格位专属规则均使用完整原文，不筛词、不缩写。
+  const scopedNarratives=scopedItems.map(item=>{
+    const trigger=item.trigger?`${item.trigger}：`:'';
+    return `${trigger}${item.summary}`;
+  });
+
+  const narrativeParts=[];
+  if(repeatedNarratives.length){
+    narrativeParts.push(`综合各格中重复出现两次及以上的相近命理特质：${repeatedNarratives.join('；')}。`);
+  }else{
+    narrativeParts.push('本次排盘（不含天格）暂未发现出现在两个或以上不同格位的重复特质。');
   }
-  for(const item of scopedItems){
-    for(const text of item.summary.split(/[，,、；;。]/).map(s=>s.trim()).filter(Boolean)){
-      // 去掉原文中偶尔带入的格位/数理前缀，仅保留性格和能力描述。
-      const phrase=text.replace(/^(?:天格|人格|地格|变格|外格|总格)\s*\d+\s*(?:时|有|为)?[:：]?/,'').trim();
-      if(phrase&&!phrases.includes(phrase))phrases.push(phrase);
-    }
+  if(scopedNarratives.length){
+    narrativeParts.push(`此外，符合格位条件的数理专属信息如下：${scopedNarratives.join('；')}。`);
   }
-  // 先限字数再用 CSS 真实限定 4 行；尽可能避免窄屏出现截断半句话。
-  const maxChars=46;
-  let narrative='';
-  for(const phrase of phrases){
-    const candidate=narrative?`${narrative}，${phrase}`:phrase;
-    if(Array.from(candidate).length+1>maxChars)break;
-    narrative=candidate;
-  }
-  narrative=narrative?`此人${narrative}。`:'当前没有匹配到可概括的重复特质或格位专属描述。';
+  // 不设置四行或字数上限，确保全部符合条件的信息都完整显示。
+  const narrative=narrativeParts.join('');
 
   const paragraph=document.createElement('p');
   paragraph.className='integrated-summary-paragraph';
@@ -371,7 +411,7 @@ function renderIntegrated(chart){
 
   const sourceHeading=document.createElement('div');
   sourceHeading.className='integrated-source-heading';
-  sourceHeading.textContent='全部匹配特质及格位专属描述的来源';
+  sourceHeading.textContent='以上全部解读对应来源（完整展示）';
   root.append(sourceHeading);
 
   let sourceIndex=0;
@@ -408,7 +448,7 @@ function renderIntegrated(chart){
   }else{
     const note=document.createElement('p');
     note.className='mini-interpretation-note';
-    note.textContent='上方摘要限4行，下方完整列出所有命中的重复特质及格位专属描述，不做数量截断。天格不参与重复统计；OCR待校对资料需对照原版图片确认。';
+    note.textContent='上方完整呈现所有符合条件的重复特质及格位专属描述；下方逐项列出全部来源。天格不参与重复特质统计；OCR待校对内容请对照原版图片确认。';
     root.append(note);
   }
 }
