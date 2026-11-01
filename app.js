@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.5";
+const APP_VERSION = "0.1.6";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -7,13 +7,13 @@ const ELEMENTS = ["木","火","土","金","水"];
 const STORAGE = { history:"tingyuan_history_v1", overrides:"tingyuan_stroke_overrides_v1" };
 
 async function loadData(){
-  const files = ["rules","interpretations","numerology-traits","strokes","surnames","name-strokes","stroke-variants","traditional-rules","numerology-ocr"];
+  const files = ["rules","interpretations","numerology-traits","strokes","surnames","name-strokes","stroke-variants","numerology-ocr"];
   const values = await Promise.all(files.map(async n => {
     const r = await fetch(`./assets/${n}.json`);
     if(!r.ok) throw new Error(`数据文件加载失败：${n}.json`);
     return r.json();
   }));
-  [state.rules,state.interpretations,state.traits,state.strokes,state.surnames,state.nameOverrides,state.strokeVariants,state.traditional,state.ocr] = values;
+  [state.rules,state.interpretations,state.traits,state.strokes,state.surnames,state.nameOverrides,state.strokeVariants,state.ocr] = values;
   renderNumberGrid();
 }
 function codepoints(s){ return [...s]; }
@@ -195,22 +195,6 @@ function chartEvidence(chart){
       if(item.name)notes.push({grid,raw,number:n,tag:item.name,group:groupOfTrait(item.name),detail:item.evidence?.join('、')||item.name,source:`${n} 数理特质索引`});
     }
   });
-  const ren=chart.grids[1],el=element(ren),yy=ren%2===1?'阳':'阴';
-  const personalityLabels = {
-    木:[['善良仁慈','人格木：仁慈'],['正直诚信','人格木：正直'],['勤奋上进','人格木：上进']],
-    火:[],
-    土:[['正直诚信','人格土：信用'],['脚踏实地','人格土：做事踏实']],
-    金:[],
-    水:[['聪明智慧','人格水：聪明']]
-  };
-  const byYinYang={
-    '阳火':[['心直口快','人格阳火：不开心或生气会直说']],
-    '阳土':[['固执任性','人格阳土：固执']],
-    '阳金':[['心直口快','人格阳金：做事直爽']]
-  };
-  for(const [tag,detail] of [...(personalityLabels[el]||[]),...(byYinYang[yy+el]||[])]){
-    notes.push({grid:'人格',raw:ren,number:norm(ren),tag,group:groupOfTrait(tag),detail,source:'《人格》'});
-  }
   // 同一格内即使来自不同文档、用词不同，也只能算一次。
   const groups=new Map();
   for(const item of notes){
@@ -227,73 +211,41 @@ function chartEvidence(chart){
 }
 function renderIntegrated(chart){
   const root=$('#integratedContent');root.innerHTML='';
-  const data=state.traditional, evidence=chartEvidence(chart);
-  const addSection=(title,description,rows=[])=>{
-    const section=document.createElement('section');section.className='integrated-section';
-    const heading=document.createElement('h4');heading.textContent=title;section.append(heading);
-    const copy=document.createElement('p');copy.className='integrated-description';copy.textContent=description;section.append(copy);
-    for(const row of rows){
-      const item=document.createElement('div');item.className='integrated-row';
-      const h=document.createElement('strong');h.textContent=row.title;
-      const p=document.createElement('p');p.textContent=row.body;item.append(h,p);section.append(item);
+  const evidence=chartEvidence(chart);
+  const fromOCR=getOcrCandidates(chart);
+  const found=new Map();
+  for(const row of evidence.repeated){
+    found.set(row.label,{label:row.label, sources:row.sources.map(s=>`${s.grid}${s.raw}（${[...new Set(s.items.map(i=>i.tag))].join('、')}）`)});
+  }
+  // OCR 仅用于补充原有特质库漏掉的同义项，注明其未校对状态。
+  for(const item of fromOCR){
+    if(found.has(item.label))continue;
+    found.set(item.label,{label:item.label,sources:item.sources.map(s=>`${s.grid}${s.raw}（${s.word}·OCR待校对）`)});
+  }
+  const matched=[];
+  for(let i=1;i<chart.grids.length;i++){
+    const raw=chart.grids[i],n=norm(raw),grid=GRID_NAMES[i];
+    if((grid==='人格'||grid==='变格')&&n===16){
+      matched.push(`${grid}16：个性强、正直不服输、有领导能力、重承诺、人缘好。（16 数理原文：人格与变格时）`);
     }
-    root.append(section);
-  };
-  const repeated=evidence.repeated;
-  addSection('一、跨格近义特质',
-    `统计人格、地格、变格、外格、总格，天格不计入；同一格内同类词只记一次。本次识别到 ${repeated.length} 组跨格重复。`,
-    repeated.length?repeated.map(r=>({title:`${r.label} · ${r.count} 格呼应`,body:r.sources.map(s=>`${s.grid}${s.raw}：${s.items.map(i=>`${i.detail}〔${i.source}〕`).join('；')}`).join('\n')})):[{title:'暂无可核验的跨格重复',body:'仅代表当前已录入的数理特质与文档语义表没有形成两格以上呼应；不表示不存在其他传统解释。'}]);
-  const person=chart.grids[1],el=element(person),yy=person%2?'阳':'阴';
-  const personality=data.personality[el];
-  addSection('二、人格专属解读',`人格 ${person}（数理 ${norm(person)}）为${yy}${el}。人格五行与阴阳描述仅在“人格”这一格触发，不能把其他格的同数字当成人格解释。`,[
-    {title:`${el} · ${personality.principle}`,body:`文档原文概述：${personality.base}（依据《人格》）`},
-    {title:`${yy}${el}`,body:`文档原文概述：${yy==='阳'?personality.yang:personality.yin}（依据《人格》；阴阳按奇数阳、偶数阴的可修改约定）`}
-  ]);
-  const specs=data.special;
-  const gridRules=[];
-  chart.grids.forEach((raw,i)=>{
-    if(i===0)return;
-    const n=norm(raw),grid=GRID_NAMES[i];
-    const add=(title,body,source)=>gridRules.push({title:`${grid}${raw} · ${title}`,body:`${body}〔${source}〕`});
-    if(specs.imperial.includes(n))add('帝王术数字',`数理 ${n} 出现在${grid}，对应《特殊格局》所列帝王术。`, '《特殊格局》');
-    if(specs.smallImperial.includes(n))add('小帝王术数字','29 在该格，文档列为“小帝王术”。','《特殊格局》');
-    if(specs.art.includes(n))add('艺术格数字','20 在该格，文档列为“艺术格”。','《特殊格局》');
-    if(specs.official.includes(n))add('官方方向数字','19 在该格，文档描述为“容易向官方走”。','《特殊格局》');
-    if(specs.sickWood.includes(n))add('病木标记','属于文档所列“病木”数字，仅按传统类别展示，不作健康诊断。','《相克》');
-    if(specs.longevityEarth.includes(n))add('福寿土标记','属于文档所列“福寿土”数字；不据此判断真实寿命。','《相克》');
-    if(i===2 && n===9)add('地格专属数字 9','资料专门强调“地格有9”，此处只识别其格位与数理，不采信其寿命断言。','《特殊格局》');
-    if(i===1 && n===10)add('人格专属数字 10','资料专门强调“人格有10”，此处只识别其格位与数理，不采信其寿命断言。','《特殊格局》');
-    if((i===2||i===5)&&specs.familyNumbers.includes(n))add('家庭相关数字','文档将这些数字写在“地格大凶、家庭格／总格”一段；家庭格的完整算法尚不明确，本版仅在地格或总格显示提示，不作确定结论。','《特殊格局》');
-  });
-  addSection('三、格位限定与特殊数字',
-    '只有数理出现在要求的格位，才触发相应专属说明。其他格出现同数字不冒充人格或地格专属规则；天格不纳入此段。',
-    gridRules.length?gridRules:[{title:'未触发已明确的专属数字条件',body:'仍可在六格卡片点击查看对应数理原文。'}]);
-  const five=[];
-  chart.grids.forEach((raw,i)=>{
-    if(i===0)return;
-    const n=norm(raw),list=state.traits.numbers[String(n)]||[];
-    five.push({title:`${GRID_NAMES[i]} ${raw} · ${element(raw)} · ${grade(raw)}`,body:list.length?`当前数理标签：${list.map(x=>x.name).join('、')}。\n索引证据：${list.map(x=>`${x.name}（${(x.evidence||[]).join('、')||'已整理标签'}）`).join('；')}。`:`该数理暂无人工核对的特质标签；点击排盘格可查看原始数理图片。`});
-  });
-  addSection('四、各格数理依据',
-    '逐格列出五行、吉凶与当前数理特质标签；这些标签来自已有数理索引，不代表完整原文已全部转成可检索文本。',five);
-  const tian=element(chart.grids[0]),ren=element(chart.grids[1]);
-  const controls=(a,b)=>{const seq=['木','火','土','金','水'];return (seq.indexOf(a)+2)%5===seq.indexOf(b);};
-  let relationship=`天格为${tian}、人格为${ren}：`;
-  if(controls(ren,tian))relationship+='按常见五行相克顺序，属于“人克天”；《特殊格局》将其与顶撞上级的传统描述联系。';
-  else if(controls(tian,ren))relationship+='按常见五行相克顺序，属于“天克人”。';
-  else if(tian===ren)relationship+='五行相同。';
-  else relationship+='未形成直接相克。';
-  addSection('五、三才与五行关系',
-    '天格可参与五行结构关系描述，但不参与命理特质的重复计数，也不根据天格推断个人吉凶。',[
-      {title:`三才：${chart.triad}`,body:`传统三才等级：${state.rules.triads.find(x=>x.elements===chart.triad)?.grade||'未整理'}。`},
-      {title:'人格与天格',body:relationship+'（依据《特殊格局》及《相克》；相克顺序是通行五行约定）'}
-    ]);
-  const ages=data.ageStages.map(x=>`${x.start}–${x.end}岁：${x.name}`).join('；');
-  addSection('六、年龄阶段',
-    `资料将年龄区间划分为：${ages}。资料没有提供全部格位与各阶段的完整对应计算公式，因此不会凭空填写某一年龄段的吉凶。`,[]);
-  const notice=document.createElement('p');notice.className='integrated-caveat';notice.textContent='以上为传统姓名学文本的规则匹配与资料整理，不构成科学验证的人格、疾病、寿命、婚姻或职业预测。原始数理图片仍可逐格点击查看；31个数理仍缺人工确认的特质标签，已另行加入81数理OCR候选分析，但其内容需要对照原始图片逐条校对。';root.append(notice);
+    const scoped=state.ocr?.numbers?.[String(n)]?.scoped||[];
+    for(const rule of scoped){
+      if(!rule.slots?.includes(grid))continue;
+      const text=String(rule.text||'').replace(/\s+/g,' ').trim();
+      if(text&&!(n===16&&(grid==='人格'||grid==='变格'))){
+        matched.push(`${grid}${raw}：${text.slice(0,145)}${text.length>145?'…':''}（OCR待校对）`);
+      }
+    }
+  }
+  const rows=[];
+  for(const item of [...found.values()].slice(0,8)){
+    rows.push(`重复特质 · ${item.label}：${item.sources.join('；')}`);
+  }
+  for(const item of matched.slice(0,8))rows.push(`格位专属 · ${item}`);
+  if(!rows.length)rows.push('本次未发现可明确匹配的跨格重复特质或格位专属文字。');
+  for(const line of rows){const el=document.createElement('p');el.className='mini-interpretation-line';el.textContent=line;root.append(el);}
+  const caveat=document.createElement('p');caveat.className='mini-interpretation-note';caveat.textContent='天格不参与重复统计；近义词依预设规则归并。原文 OCR 尚待逐条校对，详细内容请点格位查看原图。';root.append(caveat);
 }
-
 
 // OCR 未经逐条人工校对；格位匹配仅使用 OCR 中出现的明确位置词。
 function perGridOcr(chart){
@@ -399,10 +351,7 @@ function renderResult(name,chart){
     quick.append(el);
   });
   cards.append(quick);
-  renderTraits(chart);
-  renderTraditional(chart);
   renderIntegrated(chart);
-  renderOcrDetail(chart);
 }
 function renderTraditional(chart){
   const data=state.traditional, holder=$("#traditionalContent");

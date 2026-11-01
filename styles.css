@@ -83,3 +83,6 @@ button,input,select{font:inherit}button{cursor:pointer}.app-shell{max-width:760p
 .integrated-row strong{color:#305845;font-size:14px}
 .integrated-row p{font-size:12px;white-space:pre-line;line-height:1.85;color:#4f554e;margin:6px 0 0;overflow-wrap:anywhere}
 .integrated-caveat{font-size:11px;color:#7f877b;line-height:1.8;margin:18px 0 0}
+
+/* 0.1.6 极简排盘解读 */
+.integrated-panel{margin-top:14px}.mini-interpretation-line{font-size:14px;line-height:1.8;color:var(--ink,#333);margin:9px 0;padding:0 0 8px;border-bottom:1px solid var(--line,#eee);overflow-wrap:anywhere}.mini-interpretation-note{font-size:11px;color:#898b83;line-height:1.6;margin-top:12px}
