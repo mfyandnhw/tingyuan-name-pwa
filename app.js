@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.3";
+const APP_VERSION = "0.1.4";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -167,6 +167,133 @@ function renderChartVisual(name, chart, triadGrade){
   return wrapper;
 }
 
+// 本版使用有来源的数理标签和保守的近义分组，不进行自由推断。
+const SIMILAR_GROUPS = [
+  {label:"仁慈与宽厚", members:["善良仁慈","温和温良","雅量宽厚"], terms:["仁慈","温和","宽厚"]},
+  {label:"正直与诚信", members:["正直诚信","忠厚老实","重承诺"], terms:["正直","诚信","忠厚"]},
+  {label:"勤奋与上进", members:["勤奋上进","事业心强"], terms:["上进","事业心"]},
+  {label:"果断与意志", members:["果断决断","意志坚定"], terms:["果断","坚定"]},
+  {label:"独立与自主", members:["独立自主"], terms:["独立"]},
+  {label:"聪慧与才智", members:["聪明智慧"], terms:["聪明","智慧"]},
+  {label:"务实与踏实", members:["脚踏实地"], terms:["踏实"]},
+  {label:"直率表达", members:["心直口快"], terms:["直说","直爽"]},
+  {label:"固执与坚持己见", members:["固执任性"], terms:["固执"]},
+  {label:"协调与交际", members:["善于协调","人缘好"], terms:["协调","人缘"]},
+  {label:"领导与组织", members:["领导能力"], terms:["领导"]},
+  {label:"艺术与才艺", members:["学识才艺"], terms:["才艺"]}
+];
+const SIMILAR_LOOKUP = new Map(SIMILAR_GROUPS.flatMap(g=>g.members.map(name=>[name,g.label])));
+function groupOfTrait(name){return SIMILAR_LOOKUP.get(name)||name;}
+function chartEvidence(chart){
+  const notes=[];
+  // 天格仅用于展现结构，不用于重复统计。
+  chart.grids.forEach((raw,i)=>{
+    if(i===0)return;
+    const n=norm(raw), grid=GRID_NAMES[i];
+    const list=state.traits.numbers[String(n)]||[];
+    for(const item of list){
+      if(item.name)notes.push({grid,raw,number:n,tag:item.name,group:groupOfTrait(item.name),detail:item.evidence?.join('、')||item.name,source:`${n} 数理特质索引`});
+    }
+  });
+  const ren=chart.grids[1],el=element(ren),yy=ren%2===1?'阳':'阴';
+  const personalityLabels = {
+    木:[['善良仁慈','人格木：仁慈'],['正直诚信','人格木：正直'],['勤奋上进','人格木：上进']],
+    火:[],
+    土:[['正直诚信','人格土：信用'],['脚踏实地','人格土：做事踏实']],
+    金:[],
+    水:[['聪明智慧','人格水：聪明']]
+  };
+  const byYinYang={
+    '阳火':[['心直口快','人格阳火：不开心或生气会直说']],
+    '阳土':[['固执任性','人格阳土：固执']],
+    '阳金':[['心直口快','人格阳金：做事直爽']]
+  };
+  for(const [tag,detail] of [...(personalityLabels[el]||[]),...(byYinYang[yy+el]||[])]){
+    notes.push({grid:'人格',raw:ren,number:norm(ren),tag,group:groupOfTrait(tag),detail,source:'《人格》'});
+  }
+  // 同一格内即使来自不同文档、用词不同，也只能算一次。
+  const groups=new Map();
+  for(const item of notes){
+    if(!groups.has(item.group))groups.set(item.group,new Map());
+    const byGrid=groups.get(item.group);
+    if(!byGrid.has(item.grid))byGrid.set(item.grid,[]);
+    byGrid.get(item.grid).push(item);
+  }
+  const repeated=[...groups].filter(([,g])=>g.size>=2).map(([label,g])=>({
+    label, count:g.size,
+    sources:[...g].map(([grid,items])=>({grid,raw:items[0].raw,items}))
+  })).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'zh-CN'));
+  return {notes,groups,repeated};
+}
+function renderIntegrated(chart){
+  const root=$('#integratedContent');root.innerHTML='';
+  const data=state.traditional, evidence=chartEvidence(chart);
+  const addSection=(title,description,rows=[])=>{
+    const section=document.createElement('section');section.className='integrated-section';
+    const heading=document.createElement('h4');heading.textContent=title;section.append(heading);
+    const copy=document.createElement('p');copy.className='integrated-description';copy.textContent=description;section.append(copy);
+    for(const row of rows){
+      const item=document.createElement('div');item.className='integrated-row';
+      const h=document.createElement('strong');h.textContent=row.title;
+      const p=document.createElement('p');p.textContent=row.body;item.append(h,p);section.append(item);
+    }
+    root.append(section);
+  };
+  const repeated=evidence.repeated;
+  addSection('一、跨格近义特质',
+    `统计人格、地格、变格、外格、总格，天格不计入；同一格内同类词只记一次。本次识别到 ${repeated.length} 组跨格重复。`,
+    repeated.length?repeated.map(r=>({title:`${r.label} · ${r.count} 格呼应`,body:r.sources.map(s=>`${s.grid}${s.raw}：${s.items.map(i=>`${i.detail}〔${i.source}〕`).join('；')}`).join('\n')})):[{title:'暂无可核验的跨格重复',body:'仅代表当前已录入的数理特质与文档语义表没有形成两格以上呼应；不表示不存在其他传统解释。'}]);
+  const person=chart.grids[1],el=element(person),yy=person%2?'阳':'阴';
+  const personality=data.personality[el];
+  addSection('二、人格专属解读',`人格 ${person}（数理 ${norm(person)}）为${yy}${el}。人格五行与阴阳描述仅在“人格”这一格触发，不能把其他格的同数字当成人格解释。`,[
+    {title:`${el} · ${personality.principle}`,body:`文档原文概述：${personality.base}（依据《人格》）`},
+    {title:`${yy}${el}`,body:`文档原文概述：${yy==='阳'?personality.yang:personality.yin}（依据《人格》；阴阳按奇数阳、偶数阴的可修改约定）`}
+  ]);
+  const specs=data.special;
+  const gridRules=[];
+  chart.grids.forEach((raw,i)=>{
+    if(i===0)return;
+    const n=norm(raw),grid=GRID_NAMES[i];
+    const add=(title,body,source)=>gridRules.push({title:`${grid}${raw} · ${title}`,body:`${body}〔${source}〕`});
+    if(specs.imperial.includes(n))add('帝王术数字',`数理 ${n} 出现在${grid}，对应《特殊格局》所列帝王术。`, '《特殊格局》');
+    if(specs.smallImperial.includes(n))add('小帝王术数字','29 在该格，文档列为“小帝王术”。','《特殊格局》');
+    if(specs.art.includes(n))add('艺术格数字','20 在该格，文档列为“艺术格”。','《特殊格局》');
+    if(specs.official.includes(n))add('官方方向数字','19 在该格，文档描述为“容易向官方走”。','《特殊格局》');
+    if(specs.sickWood.includes(n))add('病木标记','属于文档所列“病木”数字，仅按传统类别展示，不作健康诊断。','《相克》');
+    if(specs.longevityEarth.includes(n))add('福寿土标记','属于文档所列“福寿土”数字；不据此判断真实寿命。','《相克》');
+    if(i===2 && n===9)add('地格专属数字 9','资料专门强调“地格有9”，此处只识别其格位与数理，不采信其寿命断言。','《特殊格局》');
+    if(i===1 && n===10)add('人格专属数字 10','资料专门强调“人格有10”，此处只识别其格位与数理，不采信其寿命断言。','《特殊格局》');
+    if((i===2||i===5)&&specs.familyNumbers.includes(n))add('家庭相关数字','文档将这些数字写在“地格大凶、家庭格／总格”一段；家庭格的完整算法尚不明确，本版仅在地格或总格显示提示，不作确定结论。','《特殊格局》');
+  });
+  addSection('三、格位限定与特殊数字',
+    '只有数理出现在要求的格位，才触发相应专属说明。其他格出现同数字不冒充人格或地格专属规则；天格不纳入此段。',
+    gridRules.length?gridRules:[{title:'未触发已明确的专属数字条件',body:'仍可在六格卡片点击查看对应数理原文。'}]);
+  const five=[];
+  chart.grids.forEach((raw,i)=>{
+    if(i===0)return;
+    const n=norm(raw),list=state.traits.numbers[String(n)]||[];
+    five.push({title:`${GRID_NAMES[i]} ${raw} · ${element(raw)} · ${grade(raw)}`,body:list.length?`当前数理标签：${list.map(x=>x.name).join('、')}。\n索引证据：${list.map(x=>`${x.name}（${(x.evidence||[]).join('、')||'已整理标签'}）`).join('；')}。`:`该数理暂无人工核对的特质标签；点击排盘格可查看原始数理图片。`});
+  });
+  addSection('四、各格数理依据',
+    '逐格列出五行、吉凶与当前数理特质标签；这些标签来自已有数理索引，不代表完整原文已全部转成可检索文本。',five);
+  const tian=element(chart.grids[0]),ren=element(chart.grids[1]);
+  const controls=(a,b)=>{const seq=['木','火','土','金','水'];return (seq.indexOf(a)+2)%5===seq.indexOf(b);};
+  let relationship=`天格为${tian}、人格为${ren}：`;
+  if(controls(ren,tian))relationship+='按常见五行相克顺序，属于“人克天”；《特殊格局》将其与顶撞上级的传统描述联系。';
+  else if(controls(tian,ren))relationship+='按常见五行相克顺序，属于“天克人”。';
+  else if(tian===ren)relationship+='五行相同。';
+  else relationship+='未形成直接相克。';
+  addSection('五、三才与五行关系',
+    '天格可参与五行结构关系描述，但不参与命理特质的重复计数，也不根据天格推断个人吉凶。',[
+      {title:`三才：${chart.triad}`,body:`传统三才等级：${state.rules.triads.find(x=>x.elements===chart.triad)?.grade||'未整理'}。`},
+      {title:'人格与天格',body:relationship+'（依据《特殊格局》及《相克》；相克顺序是通行五行约定）'}
+    ]);
+  const ages=data.ageStages.map(x=>`${x.start}–${x.end}岁：${x.name}`).join('；');
+  addSection('六、年龄阶段',
+    `资料将年龄区间划分为：${ages}。资料没有提供全部格位与各阶段的完整对应计算公式，因此不会凭空填写某一年龄段的吉凶。`,[]);
+  const notice=document.createElement('p');notice.className='integrated-caveat';notice.textContent='以上为传统姓名学文本的规则匹配与资料整理，不构成科学验证的人格、疾病、寿命、婚姻或职业预测。原始数理图片仍可逐格点击查看；有31个数理尚缺人工整理的特质标签，同义识别仅覆盖已定义的词组。';root.append(notice);
+}
+
 function renderResult(name,chart){
   $("#resultName").textContent=name;
   const triadGrade=state.rules.triads.find(x=>x.elements===chart.triad)?.grade||"待补充";
@@ -188,6 +315,7 @@ function renderResult(name,chart){
   cards.append(quick);
   renderTraits(chart);
   renderTraditional(chart);
+  renderIntegrated(chart);
 }
 function renderTraditional(chart){
   const data=state.traditional, holder=$("#traditionalContent");
@@ -244,43 +372,23 @@ function renderTraditional(chart){
 }
 
 function renderTraits(chart){
-  const occurrences=new Map();let covered=0;
-  chart.grids.forEach((raw,i)=>{
-    if(i===0) return; // 天格不计入重复特质统计
-    const n=norm(raw), list=state.traits.numbers[String(n)]||[];
-    if(list.length) covered++;
-    const seen=new Set();
-    list.forEach(item=>{
-      const name=item.name;
-      if(!name||seen.has(name))return;
-      seen.add(name);
-      if(!occurrences.has(name))occurrences.set(name,[]);
-      occurrences.get(name).push({grid:GRID_NAMES[i],number:n,raw});
-    });
-  });
-  const repeated=[...occurrences.entries()].filter(([,sources])=>sources.length>=2);
-  const twice=repeated.filter(([,s])=>s.length===2).sort((a,b)=>a[0].localeCompare(b[0],"zh-CN"));
-  const three=repeated.filter(([,s])=>s.length>=3).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],"zh-CN"));
-  const total=5; // 人格、地格、变格、外格、总格
-  $("#traitCoverage").textContent=`${covered}/${total} 格有标签`;
+  const evidence=chartEvidence(chart);
+  const covered=chart.grids.slice(1).filter(raw=>(state.traits.numbers[String(norm(raw))]||[]).length>0).length;
+  $("#traitCoverage").textContent=`${covered}/5 格有数理标签`;
   const root=$("#traitsContent");root.innerHTML="";
-  const addGroup=(title,items)=>{
-    const group=document.createElement("div");group.className="trait-group";
-    const heading=document.createElement("div");heading.className="trait-group-title";heading.textContent=title;
-    group.append(heading);
-    if(!items.length){const empty=document.createElement("div");empty.className="empty-state";empty.textContent="当前排盘没有符合条件的重复特质。";group.append(empty);}
-    items.forEach(([name,sources])=>{
-      const row=document.createElement("div");row.className="trait-row";
-      const left=document.createElement("div");left.innerHTML=`<div class="trait-name">${escapeHTML(name)}</div><div class="trait-sources">来源：${sources.map(s=>`${s.grid} ${s.raw}`).join("、")}</div>`;
-      const count=document.createElement("span");count.className="trait-count";count.textContent=`${sources.length} 次`;
-      row.append(left,count);group.append(row);
-    });
-    root.append(group);
-  };
-  addGroup("出现 2 次",twice);
-  addGroup("出现 3 次及以上",three);
-  const note=document.createElement("div");note.className="subtle-copy";note.textContent="当前特质统计只计算人格、地格、变格、外格、总格；天格的吉凶与命理不计入统计。当前特质库有标签的数理为 50 个；其余 31 个尚未提取的数理暂不参与统计。";
-  root.append(note);
+  const groups=[{title:'出现 2 格',rows:evidence.repeated.filter(r=>r.count===2)},{title:'出现 3 格及以上',rows:evidence.repeated.filter(r=>r.count>=3)}];
+  groups.forEach(group=>{
+    const el=document.createElement('div');el.className='trait-group';
+    const h=document.createElement('div');h.className='trait-group-title';h.textContent=group.title;el.append(h);
+    if(!group.rows.length){const empty=document.createElement('div');empty.className='empty-state';empty.textContent='当前没有符合条件的跨格同义重复。';el.append(empty);}
+    group.rows.forEach(row=>{
+      const item=document.createElement('div');item.className='trait-row';
+      const left=document.createElement('div');left.className='trait-name';left.textContent=row.label;
+      const sources=document.createElement('div');sources.className='trait-sources';sources.textContent='来源：'+row.sources.map(s=>`${s.grid}${s.raw}（${[...new Set(s.items.map(i=>i.tag))].join('、')}）`).join('；');left.append(sources);
+      const count=document.createElement('span');count.className='trait-count';count.textContent=row.count+' 格';item.append(left,count);el.append(item);
+    });root.append(el);
+  });
+  const note=document.createElement('p');note.className='subtle-copy';note.textContent='同义归并仅限已列出的保守近义词组，人格文档可参与语义比对；同一格相似词不重复计数。天格不计入统计，31 个缺少标签的数理暂无法完整比较。';root.append(note);
 }
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function openNumber(number,title="",gradeText=""){
