@@ -1,4 +1,4 @@
-const APP_VERSION = "0.1.8.6";
+const APP_VERSION = "0.1.8.7";
 const $ = (s) => document.querySelector(s);
 const state = { rules:null, traits:null, traditional:null, ocr:null, interpretations:null, strokes:null, surnames:null, nameOverrides:null, strokeVariants:null, chart:null, currentName:"", currentStrokes:[], surnameLength:1, deferredInstall:null };
 const COMPOUNDS = new Set(("欧阳 歐陽 太史 端木 上官 司马 司馬 东方 東方 独孤 獨孤 南宫 南宮 万俟 萬俟 闻人 聞人 夏侯 诸葛 諸葛 尉迟 尉遲 公羊 赫连 赫連 澹台 皇甫 宗政 濮阳 濮陽 公冶 太叔 申屠 公孙 公孫 慕容 仲孙 仲孫 钟离 鍾離 长孙 長孫 宇文 司徒 鲜于 鮮于 司空 闾丘 閭丘 子车 子車 亓官 司寇 巫马 巫馬 公西 颛孙 顓孫 壤驷 壤駟 公良 漆雕 乐正 樂正 宰父 谷梁 谷樑 拓跋 夹谷 夾谷 轩辕 軒轅 令狐 段干 百里 呼延 东郭 東郭 南门 南門 羊舌 微生 梁丘 左丘 东门 東門 西门 西門 第五 公仪 公儀 公乘 公皙 南荣 南榮 东里 東里 申叔").split(" "));
@@ -381,28 +381,112 @@ function renderIntegrated(chart){
     '领导能力':'具有领导、组织或带领他人的倾向'
   };
 
-  const repeatedNarratives=repeated.map(item=>{
-    const meaning=traitSentences[item.label]||`呈现出${item.label}的特点`;
-    return meaning;
-  });
+  // 将重复特质按语义归入完整句子，避免把形容词逐个堆叠。
+  // 每个符合条件的特质都会进入对应句子；未分类项目进入补充句。
+  const proseByTrait={
+    '仁慈与宽厚':'待人仁厚，心地善良，也较愿意体谅和包容他人',
+    '正直与诚信':'重视诚信和原则，处事讲信用',
+    '勤奋与上进':'做事勤勉积极，愿意为目标持续努力',
+    '果断与意志':'遇事较有决断力，意志坚定，能够坚持自己的目标',
+    '独立与自主':'习惯独立思考和判断，不完全依赖他人',
+    '聪慧与才智':'思维较灵活，理解和判断能力较强',
+    '务实与踏实':'做事注重实际，倾向于一步一步把事情做好',
+    '直率表达':'表达方式较直接，有时也可能因说话直率而得罪人',
+    '固执与坚持己见':'主见较强，有时坚持己见，不容易改变想法',
+    '协调与交际':'较善于沟通协调，容易与他人建立联系',
+    '领导与组织':'在组织事务或带领他人时，较容易表现出领导倾向',
+    '艺术与才艺':'在学识、艺术或专业技艺方面具有一定兴趣和发展倾向',
+    '事业心强':'做事有事业心，比较重视目标和事业发展',
+    '人缘好':'人际关系较好，也较容易获得他人的好感',
+    '口才好':'表达能力较好，比较善于言谈和沟通',
+    '口才欠佳':'表达时不一定擅长言辞，需要更多耐心组织语言',
+    '善于协调':'处理人际事务时，比较善于协调不同意见',
+    '善良仁慈':'待人善良仁慈，较愿意体谅他人的处境',
+    '固执任性':'有时比较坚持自己的想法，不容易接受不同意见',
+    '好投机':'在决策时偶尔会有投机或冒险倾向，需要留意风险',
+    '孤独倾向':'有时更倾向独处，或不容易主动融入群体',
+    '学识才艺':'对知识学习、艺术或技艺发展有一定兴趣',
+    '容易得罪人':'表达或处事过于直接时，可能无意中得罪他人',
+    '心直口快':'想到什么较容易直接表达，沟通风格比较坦率',
+    '忠厚老实':'为人忠厚老实，做事较为踏实',
+    '性急':'遇到事情有时容易着急，需要留意节奏',
+    '意志坚定':'面对困难时有坚持的倾向，不容易轻易放弃',
+    '果断决断':'遇到问题时通常倾向于较快作出判断',
+    '正直诚信':'为人正直，重视原则和信用',
+    '浪费':'在金钱或资源使用上需要留意节制',
+    '温和温良':'性情较温和，待人宽厚',
+    '独立自主':'做事有独立性，倾向自己思考并作出决定',
+    '精力充沛':'做事时通常有较充足的精力和行动力',
+    '耐力强':'做事有一定耐力，能够持续投入',
+    '聪明智慧':'思路较灵活，善于理解和分析问题',
+    '能力出众':'处理事务时较能发挥自身能力和长处',
+    '脚踏实地':'做事踏实，重视实际行动和结果',
+    '自制力':'具备一定自我约束能力',
+    '自尊心强':'比较重视自尊和个人评价',
+    '自我中心':'有时容易从自身立场出发考虑问题',
+    '自私':'处理事情时需要留意兼顾他人的感受',
+    '贵人助力':'在发展过程中较容易得到朋友或他人的帮助',
+    '重承诺':'重视承诺，答应他人的事情倾向认真对待',
+    '雅量宽厚':'待人较有包容心，能够容纳不同意见',
+    '领导能力':'在组织和带领他人方面具有一定能力'
+  };
 
-  // 每条实际触发的格位专属规则均使用完整原文，不筛词、不缩写。
-  const scopedNarratives=scopedItems.map(item=>{
-    const trigger=item.trigger?`${item.trigger}：`:'';
-    return `${trigger}${item.summary}`;
-  });
+  const groups=[
+    {
+      title:'性格与处事',
+      lead:'性格与处事方面，此人',
+      labels:['仁慈与宽厚','正直与诚信','独立与自主','固执与坚持己见','直率表达','心直口快','容易得罪人','性急','意志坚定','温和温良','自尊心强','自我中心','自私','孤独倾向','雅量宽厚','重承诺','善良仁慈','固执任性','忠厚老实']
+    },
+    {
+      title:'做事与发展',
+      lead:'在做事和个人发展方面，此人',
+      labels:['勤奋与上进','事业心强','务实与踏实','果断与意志','聪慧与才智','能力出众','精力充沛','耐力强','艺术与才艺','学识才艺','果断决断','聪明智慧','脚踏实地','好投机','浪费','自制力']
+    },
+    {
+      title:'人际与沟通',
+      lead:'与人相处和沟通时，此人',
+      labels:['协调与交际','领导与组织','人缘好','贵人助力','善于协调','口才好','口才欠佳','领导能力']
+    }
+  ];
 
-  const narrativeParts=[];
-  if(repeatedNarratives.length){
-    narrativeParts.push(`综合各格中重复出现两次及以上的相近命理特质：${repeatedNarratives.join('；')}。`);
-  }else{
-    narrativeParts.push('本次排盘（不含天格）暂未发现出现在两个或以上不同格位的重复特质。');
+  const repeatedLabels=new Set(repeated.map(item=>item.label));
+  const usedLabels=new Set();
+  const proseParts=[];
+  for(const group of groups){
+    const clauses=group.labels
+      .filter(label=>repeatedLabels.has(label))
+      .map(label=>{
+        usedLabels.add(label);
+        return proseByTrait[label]||`在${label}方面有相应倾向`;
+      });
+    if(!clauses.length)continue;
+    // 用自然连接词连接完整语意，不输出逐项标签或编号。
+    const connected=clauses.length===1
+      ? clauses[0]
+      : clauses.map((clause,index)=>index===0?clause:(index===1?`同时，${clause}`:`此外，${clause}`)).join('；');
+    proseParts.push(`${group.lead}${connected}。`);
   }
-  if(scopedNarratives.length){
-    narrativeParts.push(`此外，符合格位条件的数理专属信息如下：${scopedNarratives.join('；')}。`);
+
+  const ungrouped=repeated
+    .filter(item=>!usedLabels.has(item.label))
+    .map(item=>proseByTrait[item.label]||`在${item.label}方面也呈现出相应特点`);
+  if(ungrouped.length){
+    proseParts.push(`其他重复出现的特质也显示，此人${ungrouped.join('；同时，')}。`);
   }
-  // 不设置四行或字数上限，确保全部符合条件的信息都完整显示。
-  const narrative=narrativeParts.join('');
+
+  // 格位专属信息保留完整原文，但用完整句子引出，不逐个罗列形容词。
+  if(scopedItems.length){
+    const scopedSentences=scopedItems.map(item=>{
+      const trigger=item.trigger?`${item.trigger}，`:'';
+      return `${trigger}原资料还提到：${item.summary}`;
+    });
+    proseParts.push(`此外，特定数理出现在对应格位时，还有以下专属说明：${scopedSentences.join('；')}`);
+    if(!/[。！？]$/.test(proseParts[proseParts.length-1]))proseParts[proseParts.length-1]+='。';
+  }
+
+  const narrative=proseParts.length
+    ? proseParts.join('')
+    : '本次排盘（不含天格）暂未发现出现在两个或以上不同格位的重复特质，也没有匹配到格位专属说明。';
 
   const paragraph=document.createElement('p');
   paragraph.className='integrated-summary-paragraph';
@@ -437,7 +521,8 @@ function renderIntegrated(chart){
     }
   }
   for(const item of scopedItems){
-    addSourceRow(`「${item.summary}」这句格位专属描述`, `来源：${item.source}`);
+    addSourceRow(`${item.grid}${item.raw}（数理${item.number}）格位专属信息`,
+      `${item.trigger||'对应格位条件'}；原文：${item.summary}；来源：${item.source}`);
   }
 
   if(!repeated.length&&!scopedItems.length){
